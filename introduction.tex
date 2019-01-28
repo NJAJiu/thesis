@@ -1,0 +1,42 @@
+% introduction.tex
+
+% why it is important
+% why it is hard
+% the increasing requirement of accurate time 
+
+\chapter{Introduction}
+Most computers and smartphones has their system times. Different accuracies are
+required for different purposes. 
+Assume that there is someone need to join a conference on time, and she can
+only get time from her computer. If there the system time of the computer is
+few minutes off compare with ``correct'' time, it is acceptable. But if the
+offset amount is one hour, she will be there either too early and have to
+wait for one hour or too late and the conference may be over at that time.
+
+In some other cases, a very high accuracy of system time is required. For
+example, there is a system handles stock market buy and sell orders. Generally,
+more than one devices are there in the system. So that the system times among
+devices should be ``the same'' since we need to know the order of the orders at
+least. If the system is very busy and thousands orders may be created in one
+second, every device should have system time accurate to millisecond at least.
+
+As we can see in the previous example, only a ``local accuracy'' is required,
+which means that every devices in the system need to synchronize its system
+time to the same reference clock. If the reference clock is in an internal
+device, they do not have to be synchronized to external devices. In some other
+cases, a device may need to be synchronized to a standard time, such as UTC
+(Coordinated Universal Time).  
+
+The easy way of synchronizing clock is to ask someone else the time, and
+adjust system clock manually. We always adjust the time of our
+watches like that. The accuracy is quite enough if we do not need out watches
+accurate to second. 
+
+What about to imply this method on synchronizing computers system clock? Assume
+computer A wants to synchronize to computer B, A can send a message to B then B
+checks its time and replies to A. So A can adjust its system time.  
+Obviously, there are a lot of problems.  The core one is that when A receive
+the time, it can only know the time is when B checks its time. A cannot know
+how long it is from then to when A receives the message. To solve these
+problems, the network time protocol (NTP) is developed for devices to
+synchronize their system times through network. 
