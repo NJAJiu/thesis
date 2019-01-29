@@ -3,6 +3,7 @@
 % why it is important
 % why it is hard
 % the increasing requirement of accurate time 
+% computer clock structure
 
 \chapter{Introduction}
 Most computers and smartphones has their system times. Different accuracies are
@@ -40,3 +41,35 @@ the time, it can only know the time is when B checks its time. A cannot know
 how long it is from then to when A receives the message. To solve these
 problems, the network time protocol (NTP) is developed for devices to
 synchronize their system times through network. 
+
+\section{Computers' Clock}
+\label{sec:computers_clock}
+Different computers may use different hardware methods to maintain system time.
+It relates to hardware architecture and operating system design. But they have
+the same fundamental idea: increasing a counter with a ``constant'' frequency,
+such as 1 GHz.
+Based on the frequency and the counter, the system time can be calculated
+when necessary. But in practice, the frequency is not constant. First of all,
+there may be some manufacturing error, which makes it slightly different from
+what it should be. Second, the frequency is affected by temperature, humidity
+and so on. So the system clock can be very inaccurate if it has not been
+synchronized for quite a long time, and the offset is unpredictable.
+
+\section{Trend}
+\label{sec:trend}
+The performance of time synchronization is affected by the hardware
+performance, the quality of network connection and the synchronization protocol
+itself. 
+As we have faster internet connection, and more powerful CPU, we have better
+opportunity to get more accurate system clock. As we have more accurate system
+clock, we can do more real-time stuff on internet. As we do more real-time
+stuff on internet, we desire more accurate system clock. We always want to make
+system clocks as accurate as possible after the improvements of internet
+connection and CPUs. 
+
+In real life, atomic clocks are considered the most accurate. In 2015 the most
+accurate atomic clock is accurate to $2.1\times 10^{-18}$ second.
+\cite{atomic_clock} % https://www.nature.com/articles/ncomms7896#introduction
+This accuracy is far beyond CPU frequency and network latency. With this fact,
+we can always improve the performance of time synchronization after we
+significantly improve hardware or network connection.
