@@ -1,0 +1,98 @@
+% overview-arch.tex
+
+%\begin{figure}[htpb]
+%    \centering
+%    \includegraphics[width=0.8\linewidth]{../figures.old/fig_3_1.png}
+%    \caption{NTP architecture overview}
+%    \label{fig:arch_overview}
+%\end{figure}
+
+
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, minimum
+        size=15mm, minimum width=30mm, align=center},
+        squarednode1/.style 2 args={draw=black, very thick, minimum
+        size=15mm,fit={(#1.north) (#2.south)}, text width=, inner sep=2mm, text
+        centered, align=center},
+        circlenode/.style={circle, draw=black, very thick, minimum size=15mm},
+        border/.style={-, draw=black, very thick, dashed},
+    ]
+    % Nodes
+    % remote servers, peer/poll process
+    \node[squarednode]  (s1)                {Server 1};
+    \node[squarednode]  (s2)  [below=of s1] {Server 2};
+    \node[squarednode]  (s3)  [below=of s2] {Server 3};
+    \node[align=center](lab1)[below=of s3] {Remote\\ servers};
+
+    \node[squarednode]  (p1)  [right=of s1] {Peer/poll 1};
+    \node[squarednode]  (p2)  [right=of s2] {Peer/poll 2};
+    \node[squarednode]  (p3)  [right=of s3] {Peer/poll 3};
+    \node[align=center](lab2)[below=of p3] {Peer/Poll\\ Processes};
+
+    \draw[border] ($(p1.north west) + (-0.4, 0.2)$) -| ($(lab2.south east) +
+    (0.8, -0.2)$);
+    \draw[border] ($(p1.north west) + (-0.4, 0.2)$) |- ($(lab2.south east) +
+    (0.8, -0.2)$);
+
+    % system process
+    \node[squarednode]  (sa1) [right=of p2]
+    {Selection\\ and\\ clustering\\ algorithms};
+    \node[squarednode] (sa2) [right=of sa1] {Mitigation\\ Algorithms};
+    \node[align=center](lab3)[above=5mm of sa2] {System\\ Process};
+
+    \draw[border] ($(lab3.north east) + (1.0, 0.2)$) -| ($(sa1.south west) +
+    (-0.4, -0.8)$);
+    \draw[border] ($(lab3.north east) + (1.0, 0.2)$) |- ($(sa1.south west) +
+    (-0.4, -0.8)$);
+
+    % clock discipline process
+    \node[squarednode] (lf) [right=of sa2] {Loop filter};
+    \node[align=center](lab4)[above=5mm of lf] {Clock Discipline\\ Process};
+    \draw[border] ($(lab4.north east) + (0.3, 0.2)$) -| ($(lf.south west) +
+    (-0.4, -0.8)$);
+    \draw[border] ($(lab4.north east) + (0.3, 0.2)$) |- ($(lf.south west) +
+    (-0.4, -0.8)$);
+
+    % clock adjust process
+    \node[circlenode] (vfo) [below=25mm of lf] {VFO};
+    \node[align=center](lab5)[below=5mm of vfo] {Clock Adjust\\ Process};
+    \draw[border] ($(vfo.north east) + (1.0, 0.5)$) |- ($(lab5.south west) +
+    (-0.2, -0.2)$);
+    \draw[border] ($(vfo.north east) + (1.0, 0.5)$) -| ($(lab5.south west) +
+    (-0.2, -0.2)$);
+    
+    % Lines
+    % server-peer/poll process
+    \foreach \x/\y in {s1/p1, s2/p2, s3/p3} {
+        %\draw[-] (\x) -- (\y);
+        \draw[-latex, ultra thick] ($(\x.north east)!0.5!(\x.east)$) --
+        ($(\y.north west)!0.5!(\y.west)$); 
+        \draw[latex-, ultra thick] ($(\x.south east)!0.5!(\x.east)$) --
+        ($(\y.south west)!0.5!(\y.west)$); 
+    }
+    % peer/poll process
+    \draw[-latex, ultra thick] (p2.north) -- (p1.south);
+    \draw[-latex, ultra thick] (p3.north) -- (p2.south);
+    % peer/poll process-system process
+    \draw[-latex, ultra thick] (p1.east) -- (sa1.north west);
+    \draw[-latex, ultra thick] (p2.east) -- (sa1.west);
+    \draw[-latex, ultra thick] (p3.east) -- (sa1.south west);
+    % system process
+    \draw[latex-, ultra thick] (sa2.west) -- (sa1.east);
+    % system process-clock discipline process
+    \draw[-latex, ultra thick] (sa2.east) -- (lf.west);
+    % clock discipline process-clock adjust process
+    \draw[-latex, ultra thick] (lf.east) -- ($(lf.east) + (1,0)$) |- (vfo.east);
+    % clock adjust process-poll process
+    \draw[-latex, ultra thick] (vfo.west) -| (p3.south);
+    
+
+\end{tikzpicture}
+\end{center}
+\caption{NTP architecture overview}
+\label{fig:architecture_overview}
+\end{figure}
+
+

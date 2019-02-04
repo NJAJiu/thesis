@@ -1,15 +1,21 @@
 % overview.tex
 \chapter{Overview}
+NTP operates on three different kinds of devices: primary servers, secondary
+servers and clients. Primary servers are directly synchronized to reference
+clocks and provide service that other devices can synchronize to them.
+Secondary severs are synchronized to other servers instead of reference clocks
+and provide synchronization service. Clients are synchronized to other servers
+but they do not provide synchronization to others.
 
 \section{Layered Network}
 \label{sec:Layered_network}
+\input{figures/overview-layer}
 
 \section{Processes}
 \label{sec:processes}
 
-\begin{figure}[htpb]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/fig_3_1.png}
-    \caption{NTP architecture overview}
-    \label{fig:arch_overview}
-\end{figure}
+\input{figures/overview-arch}
+% This figure is made based on the figure from
+% https://www.eecis.udel.edu/~mills/ntp/html/warp.html
+
+

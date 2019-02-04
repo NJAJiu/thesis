@@ -1,0 +1,45 @@
+% figures/overview-layer.tex
+
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, minimum
+        size=10mm, minimum width=20mm, align=center},
+    ]
+    % Nodes
+    % reference clocks
+    \node[squarednode]  (rc)                {Reference Clocks};
+    % servers
+    \node[squarednode]  (s2)      [below=of rc] {Server 2};
+    \node[squarednode]  (s1)      [left=of s2]  {Server 1};
+    \node[align=center] (lab1)    [left=10 mm of s1]  
+                        {Stratum 1\\ (Primary Servers)};
+    \node[align=center] (lab2)    [right=of s2] {\dots};
+
+    \node[squarednode]  (s3)      [below=of s1] {Server 3};
+    \node[squarednode]  (s4)      [below=of s2] {Server 4};
+    \node[align=center] (lab3)    [below=12mm of lab1]  {Stratum 2};
+    \node[align=center] (lab4)    [right=of s4] {\dots};
+
+    \node[align=center, rotate=90] (lab5)    [below=10mm of lab3] {\dots};
+
+    \node[align=center] (lab6)    [below=17mm of lab3]  {Stratum n};
+    \node[squarednode]  (client)  [below=13mm of s3] {Client};
+    
+    % synchronizations
+    \draw[-latex, ultra thick] (s1) -- (rc);
+    \draw[-latex, ultra thick] (s2) -- (rc);
+    \draw[-latex, ultra thick] (s3) -- (s1);
+    \draw[-latex, ultra thick] (s3) -- (s2);
+    \draw[-latex, ultra thick] (s4) -- (s2);
+    \draw[-latex, ultra thick] (client) -- (s2);
+    \draw[-latex, ultra thick] (client) -- (s3);
+    \draw[-latex, ultra thick] (client) -- (s4);
+
+\end{tikzpicture}
+\end{center}
+\caption{NTP Layered Network}
+\label{fig:layered_network}
+\end{figure}
+
+
