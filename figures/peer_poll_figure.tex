@@ -1,0 +1,65 @@
+
+% figures/peer_poll_figure.tex
+
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, minimum
+        size=10mm, minimum width=20mm, align=center},
+        border/.style={draw=black, dashed, very thick},
+    ]
+    % Nodes
+    % server
+    \node[squarednode]  (s)                {Server};
+
+    % on-wire protocol
+    \node[align=center] (onwire) at ($(s.east) + (2.5, 2)$) {On-wire Protocol};
+    \draw[border] ($(onwire.north west) + (-0.2, 0.2)$) -|
+            ($(onwire.north east) + (0.2, -5)$) -|
+            ($(onwire.north west) + (-0.2, 0.2)$);
+    % poll process
+    \node[squarednode] (poll) at ($(onwire) + (0, -6)$) {Poll Process};
+    \draw[-latex, ultra thick] (poll) |- ($(s.south) + (0, -0.5)$) -- (s);
+
+    % shift registers
+    \node[squarednode] (sr) at ($(onwire) + (4.5,-2)$) 
+            {Shift Registers\\
+            $(\theta_1, \delta_1, \varepsilon_1, t_1)$\\
+            $(\theta_2, \delta_2, \varepsilon_2, t_2)$\\
+            $(\theta_3, \delta_3, \varepsilon_3, t_3)$\\
+            $(\theta_4, \delta_4, \varepsilon_4, t_4)$\\
+            $(\theta_5, \delta_5, \varepsilon_5, t_5)$\\
+            $(\theta_6, \delta_6, \varepsilon_6, t_6)$\\
+            $(\theta_7, \delta_7, \varepsilon_7, t_7)$\\
+            $(\theta_8, \delta_8, \varepsilon_8, t_8)$
+            };
+    \draw[-latex, ultra thick] (s) -- (sr) node[midway, above] 
+            {$(\theta_0, \delta_0, t_0)$};
+    % clock filter algorithm
+    \node[squarednode] (cf) [right=of sr] {Clock Filter\\ algorithm};
+    \draw[-latex, ultra thick] (sr) -- (cf);
+
+    % peer process
+    \node[align=center] (peer) [below=2mm of sr.south east] {Peer Process};
+    \draw[border] ($(sr.north west) + (-0.5, 0.2)$) -- 
+            ($(sr.south west) + (-0.5, -1.2)$)
+            -|
+            ($(cf.east) + (0.2, 0)$) |-
+            ($(sr.north west) + (-0.5, 0.2)$);
+
+
+    % system process
+    \node[squarednode] (sp) [right=2.5 of cf] {System process};
+    \draw[-latex, ultra thick] (cf) -- (sp) node[midway, above] 
+            {$(\theta, \delta, \varepsilon)$};
+    
+    % synchronizations
+    % \draw[-latex, ultra thick] (s1) -- (rc);
+
+\end{tikzpicture}
+\end{center}
+\caption{Peer/Poll processes}
+\label{fig:peer_poll_processes}
+\end{figure}
+
+
