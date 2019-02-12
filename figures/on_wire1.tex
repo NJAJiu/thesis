@@ -1,0 +1,40 @@
+% figures/on_wire1.tex
+
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=0.7, transform shape,
+        textnode/.style={rectangle, very thick, minimum
+        size=10mm, minimum width=20mm, align=center},
+        border/.style={draw=black, dashed, very thick},
+        arrow/.style={-latex, ultra thick},
+    ]
+    % server
+    \node[textnode]  (s)                {Server};
+    \draw[arrow]     (s) -- ($(s) + (10,0)$);
+
+    % client
+    \node[textnode]  (c)    [below=20mm of s]            {Client};
+    \draw[arrow]     (c) -- ($(c) + (10,0)$);
+
+    % communications
+    \draw[arrow]     ($(c) + (5, 0)$) -- ($(s) + (6, 0)$);
+    \draw[arrow]     ($(s) + (8, 0)$) -- ($(c) + (9, 0)$);
+
+    % vertical line
+    \draw[border]    ($(s) + (3, 1)$) -- ($(c) + (3, -1)$);
+
+    % labels
+    \node[textnode] at ($(c) + (2.5, -0.5)$)   {$t_0$};
+    \node[textnode] at ($(s) + (2.5, 0.5)$)    {$t_1$};
+    \node[textnode] at ($(c) + (5, -0.5)$)   {$t_2$};
+    \node[textnode] at ($(s) + (6, 0.5)$)    {$t_3$};
+    \node[textnode] at ($(s) + (8, 0.5)$)    {$t_4$};
+    \node[textnode] at ($(c) + (9, -0.5)$)   {$t_5$};
+
+\end{tikzpicture}
+\end{center}
+\caption{Time stamps}
+\label{fig:on_wire1}
+\end{figure}
+
+

@@ -1,13 +1,78 @@
 % peer_poll.tex
 \chapter{Peer/Poll Processes}
 \label{cha:peer/poll}
-\input{figures/peer_poll_figure.tex}
+
+\section{Concepts}%
+\label{sec:peer/poll_concepts}
+\begin{enumerate}
+    \item Offset $\theta$\\
+        The maximum-likelihood time offset of the server clock relative to the
+        system clock. This concept describes how different the client's time
+        and the server's time are.
+        % $$\theta_{AB} = \frac{1}{2}\left[\left(T_{i-2} - T_{i-3}\right) +
+        % \left(T_{i-1} - T_i\right)\right]$$
+    \item Delay $\delta$\\
+        The round-trip delay between the client and server. It is equal to the
+        time that a massage travels from the client to the server and the time
+        it comes back.
+        % $$\delta_{AB} = \left(T_{i} - T_{i-3}\right) - \left(T_{i-1} -
+        % T_{i-2}\right)$$
+    \item Dispersion $\varepsilon$\\
+        The maximum error inherent in the measurement.
+        Another definition: Potential clock offset error due to the maximum
+        uncorrected system clock frequency error.
+        These definitions are in some respect confused, we will discuss it with
+        more detail in section~\ref{sec:peer_processes}.
+        % from website https://www.eecis.udel.edu/~mills/ntp/html/stats.html
+\end{enumerate}
 
 \section{Overview}%
 \label{sec:overview}
+Figure~\ref{fig:peer_poll_processes} shows the basic architecture of peer/poll
+processes. The communication between client and server uses on-wire protocol,
+which can provide sample statistics ($\theta_0, \delta_0, t_0$ in the figure).
+The recent eight samples are stored in a shift register, with one more sample
+statistic added ($\varepsilon$).  Then peer process applies clock filter
+algorithm, which generates peer statistics ($\theta, \delta, \varepsilon$ in
+the figure), and passes them to system process.
+
+\input{figures/peer_poll_figure.tex}
+% fig:peer_poll_processes
+
+The purpose of peer processes is to communicate with servers and to keep
+statistics of the communications which can be used to determine how reliable
+the servers are. And for poll processes, their job is to manage the
+communications to get sufficient data without making the servers too busy.
 
 \section{On wire protocol}%
 \label{sec:on_wire_protocol}
+In NTP subnet, a client can send request to server and the server sends back
+response after it got the request. The whole round of the communication can
+generate a sample. For every sample, the client wants to know the difference
+between the server's system clock and its, aka offset.
+But it may take a while for the server to give the response. And it is not
+predictable, as well as the network delay between the two devices.
+In NTP subnet, clients and servers communicate under on-wire protocol. It
+provides a smart way to calculate offset and delay for every sample. 
+
+\subsection{Statistics calculation}%
+\label{sub:statistics_calculation}
+Figure~\ref{fig:on_wire1} represents the time stamps and communications between
+a client and a server. The vertical dash line indicates the same time. The
+arrow indicates the communication packages sent from one side and received at
+the other side. The notation $t_i$ stands for the time stamp read from the
+system clock of one device. 
+
+\input{figures/on_wire1.tex}
+% fig:on_wire1
+
+If we have $t_1$ and $t_0$, which are time stamps read from both devices at the
+same time, then we can get the offset:
+$$\theta = t_1 - t_0$$
+But we cannot do this since we cannot determine whether two time stamps were
+token at the same time. The on-wire protocol actually calculates the offset in
+an alternative way:
+$$\theta = \frac{1}{2}\left[(t_3 - t_2) + (t_4 - t_5)\right]$$
 
 \section{Peer processes}%
 \label{sec:peer_processes}
@@ -15,9 +80,10 @@
 \subsection{Clock filter algorithm}%
 \label{sub:clock_filter_algorithm}
 
+\subsection{Huff-'n-puff filter}%
+\label{sub:huff_n_puff_filter}
 
 \section{Poll processes}%
 \label{sec:poll_processes}
-
 
 
