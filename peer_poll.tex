@@ -66,13 +66,20 @@ system clock of one device.
 \input{figures/on_wire1.tex}
 % fig:on_wire1
 
-If we have $t_1$ and $t_0$, which are time stamps read from both devices at the
-same time, then we can get the offset:
+In ideal situation, if we have $t_1$ and $t_0$, which are time stamps read from
+both devices at the same time, then we can get the offset:
 $$\theta = t_1 - t_0$$
 But we cannot do this since we cannot determine whether two time stamps were
 token at the same time. The on-wire protocol actually calculates the offset in
 an alternative way:
 $$\theta = \frac{1}{2}\left[(t_3 - t_2) + (t_4 - t_5)\right]$$
+Note that this equation is equivalent to:
+$$\theta = \frac{t_3 + t_4}{2} - \frac{t_2 + t_5}{2}$$
+which means that the offset is equal to the difference between two timestamps
+which are the middle points of $t_3, t_4$ and $t_2, t_5$. If the time for
+packages to travel from client to server and the time for packages to get back
+are equal, the middle points are at the same time, which is equivalent to the
+ideal situation.
 
 \section{Peer processes}%
 \label{sec:peer_processes}
