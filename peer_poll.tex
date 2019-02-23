@@ -22,7 +22,7 @@
         Another definition: Potential clock offset error due to the maximum
         uncorrected system clock frequency error.
         These definitions are in some respect confused, we will discuss it with
-        more detail in section~\ref{sec:peer_processes}.
+        more detail in Section~\ref{sec:peer_processes}.
         % from website https://www.eecis.udel.edu/~mills/ntp/html/stats.html
 \end{enumerate}
 
@@ -59,44 +59,111 @@ provides a smart way to calculate offset and delay for every sample.
 \label{sub:statistics_calculation}
 Figure~\ref{fig:on_wire1} represents the timestamps and communications between
 a client and a server. The vertical dash line indicates the same time. The
-arrow indicates the communication packages sent from one side and received at
+arrow indicates the communication packets sent from one side and received at
 the other side. The notation $T_i$ stands for the timestamp gotten from the
 system clock of one device. 
 
 \input{figures/on_wire1.tex}
 % fig:on_wire1
 
-In ideal situation, if we have $T_1$ and $T_0$, which are timestamps gotten from
-both devices at the same time, then we can get the offset $\theta$:
+In ideal situation, if we have $T_1$ and $T_0$, which are timestamps gotten
+from both devices at the same time, then we can get the offset $\theta$:
 $$\theta = T_1 - T_0$$
 But we cannot do this since we cannot determine whether two timestamps were
 token at the same time. The on-wire protocol actually calculates the offset in
 an alternative way:
-$$\theta = \frac{1}{2}\left[(T_3 - T_2) + (T_4 - T_5)\right]$$
+\begin{equation}
+    \theta = \frac{1}{2}\left[(T_3 - T_2) + (T_4 - T_5)\right]
+    \label{eq:offset_def}
+\end{equation}
 Note that this equation is equivalent to:
 $$\theta = \frac{T_3 + T_4}{2} - \frac{T_2 + T_5}{2}$$
 which means that the offset is equal to the difference between two timestamps
 which are the middle points of $T_3, T_4$ and $T_2, T_5$. 
 If the network delay is symmetric, which means the time for
-packages to travel from client to server and the time for packages to get back
+packets to travel from client to server and the time for packets to get back
 are equal, the middle points are at the same time. In this case, it is
 equivalent to the ideal situation. If the delay is asymmetric, there will be an
-error of the calculation. This error is impossible to be corrected.  But there
-is one scenario that the error can be attenuated.~\cite{redbook} We will
-discuss this part in section~\ref{sub:huff_n_puff_filter}.
+error of the calculation. This error is impossible to be corrected. However,
+there is one scenario that the error can be attenuated.~\cite{redbook} We will
+discuss this part in Section~\ref{sub:huff_n_puff_filter}.
 
 The delay $\delta$ is calculated by:
-$$ \delta = (T_5 - T_2) - (T_4 - T_3)$$
+\begin{equation}
+    \delta = (T_5 - T_2) - (T_4 - T_3)
+    \label{eq:delay_def}
+\end{equation}
 It is actually a difference of two time periods. It is not impacted by the
 offset, since each time period is calculated using two timestamps from the same
 device.
+(NOTE: add the impact of frequency offset.)
 
-\subsection{Modes of on-wire Protocol}%
-\label{sub:modes_of_on_wire_protocol}
-TODO: figure out whether NTPv4 supports this
+\subsection{Timestamps in NTP packet}%
+\label{sub:timestamps_in_ntp_packet}
+% how to store timestamps and modes
+% https://www.eecis.udel.edu/~mills/onwire.html
+NTP uses NTP packets in communications. The NTP packet is a UDP
+datagram.~\cite{rfc5905} There are four timestamps in NTP packet header:
+\begin{enumerate}
+    \item Reference Timestamp\\
+        Time when the system clock was last set or corrected.
+    \item Origin Timestamp (\emph{org})\\
+        Time at the client when the request packet departs from it.
+    \item Receive Timestamp (\emph{rec})\\
+        Time at the server when the request packet is receive by it.
+    \item Transmit Timestamp (\emph{xmt})\\
+        Time at the server when the response packet departs from it.
+\end{enumerate}
+In peer process, we are interested in another one: destination
+timestamp(\emph{dst}), which is the time at the client when it receives the
+response packet. And the reference timestamp is not interested here. In
+Figure~\ref{fig:on_wire1}, the packet leave at $T_4$ contains $T_4, T_3$ and
+$T_2$ in its header, where
+$$ org = T_2,~rec = T_3,~xmt = T_4 $$
+When the client gets the packet, it captures $dst = T_5$.
 
-\verb|https://www.eecis.udel.edu/~mills/onwire.html|
+The purpose of on-wire protocol is to calculate offset $\theta$ and delay
+$\delta$ based on the communication. The four timestamps used in
+Equation~\ref{eq:offset_def} and Equation~\ref{eq:delay_def} are important,
+which are \emph{org}, \emph{rec}, \emph{xmt} and \emph{dst}.
+High accuracy requires that they are captured as close to the actual time of
+the relative event (sending or receiving packet) as possible. On-wire protocol
+provides two interleaved modes which are \emph{interleaved symmetric} and
+\emph{interleaved broadcast}. They are extensions of basic symmetric mode and
+basic broadcast mode.~\cite{on_wire} 
+%
+In basic modes, \emph{org} and \emph{xmt} in outgoing packet are captured
+before the packet is made, which is not the timestamp when the packet is sent. 
+This kind of timestamps are called \emph{softstamps}. In this case, 
+after softstamp is captured, there are something else to do before sending the
+packet, such as add validation information to the packet and adding the packet
+to the output queue, then the packet will wait in the queue before it is sent.
+For \emph{rec} and \emph{dst}, which are also called \emph{drivestamps}, they
+are captured ``shortly after the input device interrupt and before adding the
+buffer to the input queue''.\cite{on_wire} We can see that the drivestamps are
+more accurate than softstamps because there is only a short delay by handling
+the interrupt. If we can capture timestamps exactly when packets are sent or
+received, they will be more accurate. However, we need additional hardware
+support to do this.
 
+In interleaved modes, we can make softstamps more accurate without
+additional hardware support. The trade off is that we need more packets.
+Instead of capturing softstamps before the packets are made, we can capture
+them shortly after the output interrupt. In this case, the accuracy is similar
+with drivestamps but they can not be sent in the very packets which they
+represent the time they are sent. We need one more packet if we want to send
+softstamps. More detail about interleaved modes are beyond the scope of this
+thesis.
+
+\subsection{Non-reliable protocol}%
+\label{sub:non_reliable_protocol}
+As mentioned in Section~\ref{sub:timestamps_in_ntp_packet}, the NTP packet is a
+UDP datagram. This make on-wire protocol not reliable, which means that there
+is no guarantee about the packet. Reliable delivery actually decreases the
+reliability of NTP packet. Assume we are implementing on-wire protocol to make
+it reliable by using similar technique like TCP, a lost packet will be sent
+again. However, an identical packet is not valid since the timestamp which
+indicates the time when the packet is sent is incorrect.
 
 \section{Peer processes}%
 \label{sec:peer_processes}

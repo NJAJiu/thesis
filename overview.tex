@@ -9,6 +9,22 @@ Secondary severs are synchronized to other servers instead of reference clocks
 and provide synchronization service. Clients are synchronized to other servers
 but they do not provide synchronization to others.
 
+\section{Protocol modes}%
+\label{sec:protocol_modes}
+NTP has three basic protocol modes: \emph{server/client}, \emph{symmetric}
+and \emph{broadcast}. They are also called association modes. (NOTE: I DID NOT
+FIND ANY DEFINITION OF ASSOCIATION!) In the server/client variant, clients send
+requests to server for synchronization, and servers handle the request and send
+response. We say "clients pull synchronization from servers".
+The broadcast is like the opposite mode of server/client mode, in which servers
+push synchronization to clients. Symmetric mode is a combination of two
+server/client modes and two broadcast modes. In symmetric variant, a peer
+operates as both client and server and each peer both push and poll
+synchronization to and from each other.~\cite{rfc5905}
+
+There are two interleaved modes which we will discuss in
+Section~\ref{sub:timestamps_in_ntp_packet}.
+
 \section{Layered Network}
 \label{sec:Layered_network}
 The NTP network or subnet has a hierarchy architecture, which is divided into
@@ -16,7 +32,7 @@ several levels. Each level is called a stratum. All primary servers are in
 stratum one, which is the highest stratum. Secondary servers are assigned the
 stratum number one great than the server's stratum number which it synchronizes
 to. E.g., if a secondary server synchronizes to a server in stratum 3, it is in
-stratum 4. The maximum stratum number is 16. (RFC5905,p.17)
+stratum 4. The maximum stratum number is 16.~\cite{rfc5905}
 Typically, clients do not have stratum number, but we can treat them
 as in a stratum by using the same rule as secondary servers.
 As the stratum number increases, the accuracy of devices in stratum
@@ -31,6 +47,7 @@ synchronize to it but server 3 may not actually synchronize to server 1.
 % fig:layered_network
 \input{figures/overview-layer}
 
+% Feb 20 2019, Dr. Diamond gave some advise about this paragraph
 As people want their devices to be accurate, it is better to synchronize to
 primary servers. But this can make primary servers very busy. Based on the rule
 of engagement for NTP users, ``clients should avoid using primary servers
@@ -49,7 +66,7 @@ server.
 \section{Processes}
 \label{sec:processes}
 % Architecture of client processes.
-As figure~\ref{fig:architecture_overview} shows, operations of an NTP client
+As Figure~\ref{fig:architecture_overview} shows, operations of an NTP client
 can be separated into the following processes:
 \begin{itemize}
     \item Peer/poll Processes\\
