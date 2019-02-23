@@ -98,6 +98,13 @@ offset, since each time period is calculated using two timestamps from the same
 device.
 (NOTE: add the impact of frequency offset.)
 
+There is another statistic $t$ in Figure~\ref{fig:peer_poll_processes}, which
+indicates the time that the offset $\theta$ and delay $\delta$ are calculated.
+In practice we can let $t = T_5$, because it is just used to indicate the order
+of groups of sample statistics, we do not need it to be extremely accurate.
+In Figure~\ref{fig:peer_poll_processes}, we add subscript 0 to distinguish the
+new group of samples statistics and the groups which are in the shift register.
+
 \subsection{Timestamps in NTP packet}%
 \label{sub:timestamps_in_ntp_packet}
 % how to store timestamps and modes
@@ -167,9 +174,22 @@ indicates the time when the packet is sent is incorrect.
 
 \section{Peer processes}%
 \label{sec:peer_processes}
+For each server, on-wire protocol provides sample statistics $\theta, \delta$
+and $t$ and passes them to peer process. Then the clock filter algorithm
+deals with them.
 
 \subsection{Clock filter algorithm}%
 \label{sub:clock_filter_algorithm}
+The job of clock filter algorithm can be considered as two parts. First it
+maintains sample statistics, second it calculates peer statistics.
+
+\subsubsection{Sample statistics maintenance}%
+\label{ssub:sample_statistics_maintenance}
+
+\subsubsection{Peer statistics calculation}%
+\label{ssub:peer_statistics_calculation}
+
+
 
 \subsection{Huff-'n-puff filter}%
 \label{sub:huff_n_puff_filter}
