@@ -27,14 +27,14 @@
 \end{enumerate}
 
 \section{Overview}%
-\label{sec:overview}
+\label{sec:peer_poll_overview}
 Figure~\ref{fig:peer_poll_processes} shows the basic architecture of peer/poll
 processes. The communication between client and server uses on-wire protocol,
 which can provide sample statistics ($\theta_0, \delta_0, t_0$ in the figure).
 The recent eight samples are stored in a shift register, with one more sample
 statistic added ($\varepsilon$).  Then peer process applies clock filter
-algorithm, which generates peer statistics ($\theta, \delta, \varepsilon$ in
-the figure), and passes them to system process.
+algorithm, which generates peer statistics ($\theta, \delta, \varepsilon,
+\varphi$ in the figure), and passes them to system process.
 
 \input{figures/peer_poll_figure.tex}
 % fig:peer_poll_processes
@@ -80,13 +80,13 @@ Note that this equation is equivalent to:
 $$\theta = \frac{T_3 + T_4}{2} - \frac{T_2 + T_5}{2}$$
 which means that the offset is equal to the difference between two timestamps
 which are the middle points of $T_3, T_4$ and $T_2, T_5$. 
-If the network delay is symmetric, which means the time for
-packets to travel from client to server and the time for packets to get back
-are equal, the middle points are at the same time. In this case, it is
-equivalent to the ideal situation. If the delay is asymmetric, there will be an
-error of the calculation. This error is impossible to be corrected. However,
-there is one scenario that the error can be attenuated.~\cite{redbook} We will
-discuss this part in Section~\ref{sub:huff_n_puff_filter}.
+If the network delay is symmetric, which means the time for packets to travel
+from client to server and the time for packets to get back are equal, the
+middle points are at the same time. In this case, it is equivalent to the ideal
+situation. If the delay is asymmetric, there will be an error of the
+calculation. This error is impossible to be corrected. However, there is one
+scenario that the error can be attenuated.~\cite{redbook} We will discuss this
+part in Section~\ref{sub:huff_n_puff_filter}.
 
 The delay $\delta$ is calculated by:
 \begin{equation}
@@ -102,6 +102,8 @@ There is another statistic $t$ in Figure~\ref{fig:peer_poll_processes}, which
 indicates the time that the offset $\theta$ and delay $\delta$ are calculated.
 In practice we can let $t = T_5$, because it is just used to indicate the order
 of groups of sample statistics, we do not need it to be extremely accurate.
+It is maintained by clock-adjust process. It counts the seconds since the
+service was started.
 In Figure~\ref{fig:peer_poll_processes}, we add subscript 0 to distinguish the
 new group of samples statistics and the groups which are in the shift register.
 
@@ -175,24 +177,111 @@ indicates the time when the packet is sent is incorrect.
 \section{Peer processes}%
 \label{sec:peer_processes}
 For each server, on-wire protocol provides sample statistics $\theta, \delta$
-and $t$ and passes them to peer process. Then the clock filter algorithm
-deals with them.
+and $t$ and passes them to peer process. Then the peer process maintains them
+and the clock filter algorithm calculates peer statistics based on them.
+
+\subsection{Sample statistics maintenance}%
+\label{sub:sample_statistics_maintenance}
+As mentioned in Section~\ref{sec:peer_poll_overview}, there is a shift register
+which stores the recent eight samples. When a packet arrives, the peer process
+replace the oldest sample by the new one with a dispersion $\varepsilon$ added.
+The dispersion is initialized as:
+$$ \varepsilon = \rho_r + \rho_s + \phi (T_5 - T_2) $$
+Where 
+\begin{itemize}
+    \item 
+        $\rho_r$ is the root precision in NTP packet. 
+    \item 
+        $\rho_s$ is the system
+        precision which we will discuss in next chapter. (NOTE: REF HERE).
+    \item
+        $\phi = 15 ppm = 15 \mu s/s$ is a constant.
+    \item
+        $T_5$ and $T_2$ are the two timestamps in Figure~\ref{fig:on_wire1}. In
+        other word, $T_5$ is \emph{dst} and $T_2$ is \emph{org}.
+\end{itemize}
+After storing the sample statistics into the shift register, the peer process
+increases dispersion in a constant rate $\phi$.
+
+In Section~\ref{sec:peer/poll_concepts} we mentioned that dispersion is the
+maximum error. Now we can consider dispersion as a function of time ($t$) and
+we have:
+\begin{equation}
+    \varepsilon(t) = \rho_r + \rho_s + \phi (t - T_2)
+    \label{eq:dispersion}
+\end{equation}
+In Equation~\ref{eq:dispersion}, dispersion has two parts. $\rho_r + \rho_s$
+represents the error due to the precisions of server and client clocks. $\phi
+(t - T_2)$ represents the error due to frequency tolerance and time.
+(TODO: add more about 15 ppm)
+
+\subsection{Initial and invalid samples}%
+\label{sub:initial_and_invalid_samples}
+When the service starts, all eight samples in the shift register are
+initialized to the dummy tuple: $\theta = 0, \delta = MAXDISP, \varepsilon =
+MAXDISP, t = 0$, where $MAXDISP = 16$ is the maximum dispersion.~\cite{rfc5905} 
+
+There is a 8-bit shift register called reach register which is shared by peer
+and poll process and used to determine whether the server is reachable and the
+data is fresh. It is maintained by poll process, which we will discuss in
+Section~\ref{sec:poll_processes}. After a packet is sent to the server, the
+register is shifted left by one bit and the rightmost bit is set to 0. If a
+valid packet is arrived from the server, the rightmost bit is set to 1. A
+server is reachable only when there is at least one non-zero bit in the
+register. If the three rightmost bit are all 0, there will be a dummy tuple
+inserted into the shift register of samples by replacing the oldest one which
+indicates invalid sample.
 
 \subsection{Clock filter algorithm}%
 \label{sub:clock_filter_algorithm}
-The job of clock filter algorithm can be considered as two parts. First it
-maintains sample statistics, second it calculates peer statistics.
+The clock filter algorithm calculates peer statistics used in system process.
+As mentioned in Section~\ref{sec:peer_poll_overview}, there are 8 samples in
+the shift register. Clock filter algorithm selects one of them represents the
+offset and delay of the server, then calculates the dispersion and jitter,
+passes them to the system process as well as the arrive time of selected
+sample.
 
-\subsubsection{Sample statistics maintenance}%
-\label{ssub:sample_statistics_maintenance}
+Figure~\ref{fig:clock_filter} is ``a wedge scattergram plotting sample points of
+offset versus delay collected over a 24-hr period''. (NOTE: cite here) It shows
+that with as the delay increases, the variance of offset increases as well. In
+this case, the best sample should be the one with lowest delay.
 
-\subsubsection{Peer statistics calculation}%
-\label{ssub:peer_statistics_calculation}
+\input{figures/clock_filter}
+% fig:clock_filter
 
+Based on the result we got from Figure~\ref{fig:clock_filter}, clock filter
+algorithm first sort the samples by their delay. If the first sample is later
+than the last sample we chose, it is selected, otherwise nothing more happen.
+This mechanism guarantees that one sample will only be used at most once.
 
+After the selection, the offset $\theta$ and delay $\delta$ of the sample
+become peer statistics with the same names. The sorted samples are indexed from
+0 to 7 from the one with the lowest delay to the one with highest. Here
+$\varepsilon_i$ indicates the dispersion of the sample with index $i$. We
+calculate peer dispersion $\varepsilon$ by:
+\begin{equation}
+    \varepsilon = \sum^{7}_{i=0} \frac{\varepsilon_i}{2^{(i+1)}}
+    \label{eq:peer_dispersion}
+\end{equation}
+The peer jitter $\varphi$ is calculated by:
+\begin{equation}
+    \varphi = \sqrt{\frac{1}{n-1} \sum^{n-1}_{j=1} (\theta_0 - \theta_j)^2}
+    \label{eq:peer_jitter}
+\end{equation}
+where $n$ is the number of valid samples in the shift register ($n > 1$).
+The peer jitter is the root mean square (RMS) of difference between sample
+offsets and the sample offset of selected sample. A larger jitter indicates
+that the offset varies more, which we can consider that there may be some
+problem with the server and/or the connection, since the offset should not
+change much if we did not adjust client's system clock by a large amount.
 
 \subsection{Huff-'n-puff filter}%
 \label{sub:huff_n_puff_filter}
+
+%\subsection{Reachability detection}%
+%\label{sub:reachability_detection}
+% https://docs.ntpsec.org/latest/stats.html
+% redbook
 
 \section{Poll processes}%
 \label{sec:poll_processes}
