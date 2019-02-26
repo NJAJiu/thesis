@@ -1,0 +1,94 @@
+% figures/huff_n_puff1.tex
+
+\begin{figure}[htpb]
+\begin{center}
+\subfloat[Best case]{
+\begin{tikzpicture}[scale=0.7, transform shape,
+        textnode/.style={rectangle, very thick, minimum
+        size=10mm, minimum width=20mm, align=center},
+        border/.style={draw=black, dashed, very thick},
+        arrow/.style={-latex, ultra thick},
+    ]
+    % server
+    \node[textnode]  (s)                        {Server};
+    \draw[arrow]     (s) -- ($(s) + (9.5,0)$);
+
+    % client
+    \node[textnode]  (c)    [below=20mm of s]   {Client};
+    \draw[arrow]     (c) -- ($(c) + (9.5,0)$);
+
+    % communications
+    \draw[arrow]     ($(c) + (3, 0)$) -- ($(s) + (3.5, 0)$);
+    \draw[arrow]     ($(s) + (6.5, 0)$) -- ($(c) + (7, 0)$);
+
+    % dash line
+    \draw[border]    ($(s) + (5, 0)$) -- ($(c) + (5, 0)$);
+\end{tikzpicture}
+\label{subfig:best_case}
+}
+\subfloat[Normal case]{
+\begin{tikzpicture}[scale=0.7, transform shape,
+        textnode/.style={rectangle, very thick, minimum
+        size=10mm, minimum width=20mm, align=center},
+        border/.style={draw=black, dashed, very thick},
+        arrow/.style={-latex, ultra thick},
+    ]
+    % server
+    \node[textnode]  (s)                        {Server};
+    \draw[arrow]     (s) -- ($(s) + (9.5,0)$);
+
+    % client
+    \node[textnode]  (c)    [below=20mm of s]   {Client};
+    \draw[arrow]     (c) -- ($(c) + (9.5,0)$);
+
+    % communications
+    \draw[arrow]     ($(c) + (3, 0)$) -- ($(s) + (4, 0)$);
+    \draw[arrow]     ($(s) + (6, 0)$) -- ($(c) + (7.5, 0)$);
+
+    % dash line
+    \draw[border]    ($(s) + (5, 0)$) -- ($(c) + (5.25, 0)$);
+\end{tikzpicture}
+\label{subfig:normal_case}
+}
+
+\subfloat[Extremely asymmetric case]{
+\begin{tikzpicture}[scale=0.7, transform shape,
+        textnode/.style={rectangle, very thick, minimum
+        size=10mm, minimum width=20mm, align=center},
+        border/.style={draw=black, dashed, very thick},
+        arrow/.style={-latex, ultra thick},
+    ]
+    % server
+    \node[textnode]  (s)                        {Server};
+    \draw[arrow]     (s) -- ($(s) + (10,0)$);
+
+    % client
+    \node[textnode]  (c)    [below=20mm of s]   {Client};
+    \draw[arrow]     (c) -- ($(c) + (10,0)$);
+
+    % communications
+    \draw[arrow]     ($(c) + (3, 0)$) -- ($(s) + (3, 0)$);
+    \draw[arrow]     ($(s) + (5, 0)$) -- ($(c) + (7.5, 0)$);
+
+    % dash line
+    \draw[border]    ($(s) + (4, 0)$) -- ($(c) + (5.25, 0)$);
+    \draw[border]    ($(s) + (4, 0)$) -- ($(c) + (4, 0)$);
+
+    % labels
+    \node[textnode] at ($(c) + (3, -0.5)$)      {$T_0$};
+    \node[textnode] at ($(s) + (3, 0.5)$)       {$T_1$};
+    \node[textnode] at ($(s) + (5, 0.5)$)       {$T_2$};
+    \node[textnode] at ($(c) + (7.5, -0.5)$)    {$T_3$};
+    \node[textnode] at ($(s) + (4, 0.5)$)       {$T_4$};
+    \node[textnode] at ($(c) + (5.25, -0.5)$)   {$T_5$};
+    \node[textnode] at ($(c) + (4, -0.5)$)      {$T_6$};
+
+\end{tikzpicture}
+\label{subfig:extremely_asymmetric_case}
+}
+\end{center}
+\caption{The relationship between delay and offset variance}
+\label{fig:huff_n_puff1}
+\end{figure}
+
+

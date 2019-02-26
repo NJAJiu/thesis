@@ -244,7 +244,8 @@ sample.
 Figure~\ref{fig:clock_filter} is ``a wedge scattergram plotting sample points of
 offset versus delay collected over a 24-hr period''. (NOTE: cite here) It shows
 that with as the delay increases, the variance of offset increases as well. In
-this case, the best sample should be the one with lowest delay.
+this case, the best sample should be the one with lowest delay. We will discuss
+this more in Section~\ref{sub:huff_n_puff_filter}.
 
 \input{figures/clock_filter}
 % fig:clock_filter
@@ -275,8 +276,86 @@ that the offset varies more, which we can consider that there may be some
 problem with the server and/or the connection, since the offset should not
 change much if we did not adjust client's system clock by a large amount.
 
-\subsection{Huff-'n-puff filter}%
+\subsection{Huff-n'-puff filter}%
 \label{sub:huff_n_puff_filter}
+Now we are going to look at Figure~\ref{fig:clock_filter} closely. In the
+figure, ``there are two limb lines with at slope $\pm0.5$, representing the
+limits of sample variation''. (NOTE: cite here) 
+The variation of offset is caused by the asymmetric delay, and it is actually
+an error.
+
+Figure~\ref{fig:huff_n_puff1} shows the relationship between delay and offset
+error.  Figure~\ref{subfig:best_case} shows the best case where the delays are
+symmetric. In this case, the middle points which are indicated by the ends of
+dash line (other two figures are the same) are at the same time. As we
+mentioned in Section~\ref{sub:statistics_calculation}, the calculation in
+Equation~\ref{eq:offset_def} is correct. 
+
+\input{figures/huff_n_puff1}
+% fig:huff_n_puff1
+
+In Figure~\ref{subfig:normal_case}, it is the normal case, the delays are
+slightly different, which makes the middle points slightly different as well.
+This difference leads an error of offset.
+
+In Figure~\ref{subfig:extremely_asymmetric_case}, it represents the extremely
+asymmetric case, where there is no upload delay and the download delay is
+relatively large. Assume $T_6$ and $T_4$ are captured in the same time, the
+error of offset is the difference between $T_5$ and $T_6$. We can prove that it
+is equal to $-\frac{1}{2}\delta$. In another case, if the upload delay is
+relatively large and the download delay is zero, the error is equal to
+$\frac{1}{2}\delta$. Note that these cases are the situations when the error is
+maximum.
+
+With this analysis, we know that the slope $\pm0.5$ is not determined by
+experiment, but is calculated in theory and we know the variation of offset is
+actually error, which is the reason that we select the sample with smallest
+delay, which leads to smallest offset error.
+
+The clock filter algorithm works best when there is a symmetric delay, as
+Figure~\ref{fig:clock_filter} shows. It is also mentioned that the errors due
+to asymmetric delay are almost unable to be corrected. However, huff-n'-puff
+filter is used here to attenuate the errors.
+
+Figure~\ref{fig:huff_n_puff2} shows the scattergram like
+Figure~\ref{fig:huff_n_puff1}, but the network delay is much asymmetric. From
+the figure, we find that the samples are close to the upper limb line, which
+indicates that the offset error is positive. This means that the upload delay
+is larger than the download delay. By applying huff-n'-puff filter, we can do
+the following stuff:
+\begin{itemize}
+    \item 
+        Remember the recent sample with lowest delay where ``recent'' usually
+        means recent hours. The offset and delay of the sample are denoted by 
+        $\theta_0$ and $\delta_0$. Note that the sample is near the apex.
+    \item 
+        For a coming new sample whose offset and delay are $\theta_i$ and
+        $\delta_i$, we keep its delay value and adjust offset by:
+        \begin{equation}
+            \theta = 
+            \begin{cases}
+                \displaystyle
+                \theta_i - \frac{\delta_i - \delta_0}{2}, &\text{ if }\theta_i
+                > \theta_0\\
+                \displaystyle
+                \theta_i + \frac{\delta_i - \delta_0}{2}, &\text{ if }\theta_i
+                < \theta_0\\
+            \end{cases}
+            \label{eq:huff_n_puff}
+        \end{equation}
+\end{itemize}
+
+\input{figures/huff_n_puff2}
+% fig:huff_n_puff2
+
+Note that this adjustment is actually move the sample points close to the
+vertical line which go through the point $(\delta_0, \theta_0)$, if the samples
+are near the upper limb line, as Figure~\ref{fig:huff_n_puff2} shows. It is
+also said that it is less effective and will lead to significant errors if a
+large amount of samples are in the area between the limb
+lines.~\cite{huff_n_puff} If the practice situation is like
+Figure~\ref{fig:huff_n_puff2}, the adjustment works fine, since it can
+avoid the variation of offset which can be considered as error.
 
 %\subsection{Reachability detection}%
 %\label{sub:reachability_detection}
