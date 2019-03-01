@@ -41,7 +41,7 @@ algorithm, which generates peer statistics ($\theta, \delta, \varepsilon,
 
 The purpose of peer processes is to communicate with servers and to keep
 statistics of the communications which can be used to determine how reliable
-the servers are. And for poll processes, their job is to manage the
+the servers are. For poll processes, their jobs are to manage the
 communications to get sufficient data without making the servers too busy.
 
 \section{On wire protocol}%
@@ -218,8 +218,9 @@ represents the error due to the precisions of server and client clocks. $\phi
 \subsection{Initial and invalid samples}%
 \label{sub:initial_and_invalid_samples}
 When the service starts, all eight samples in the shift register are
-initialized to the dummy tuple: $\theta = 0, \delta = MAXDISP, \varepsilon =
-MAXDISP, t = 0$, where $MAXDISP = 16$ is the maximum dispersion.~\cite{rfc5905} 
+initialized to the dummy tuple: $\theta = 0, \delta = \verb|MAXDISP|,
+\varepsilon = \verb|MAXDISP|, t = 0$, where $\verb|MAXDISP| = 16$ is the
+maximum dispersion.~\cite{rfc5905} 
 
 There is a 8-bit shift register called reach register which is shared by peer
 and poll process and used to determine whether the server is reachable and the
@@ -364,5 +365,10 @@ avoid the variation of offset which can be considered as error.
 
 \section{Poll processes}%
 \label{sec:poll_processes}
+As mentioned in Section~\ref{sec:peer_poll_overview}, poll processes are
+designed to control the interval of communications in order to get significant
+data without making servers too busy. 
+(TODO: review this section after finishing clock adjust process)
+
 
 
