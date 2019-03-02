@@ -13,24 +13,45 @@
 % computer clock structure
 
 \chapter{Introduction}
-Time is frequently use in our daily life. 
-For an individual in weekdays, she may wake up at 7 am, get to office before 9
-am, have a lunch break from 11:30 to 1:30, go back home at 5 pm, have diner at
-7 pm, go to sleep at 11 pm. Some of the times are based on her personal habit,
-some are required by the company she works for. Some of them is fixed, for
-example, she must get to the office before 9 am, otherwise there will be a
-punishment in her salary.  Some of them may differ everyday, such as the time
-she has diner. Sometimes people get diner not because they are hungry, but it
-is the time to do it.
+Time is frequently use in our daily life. For example, let's consider a young
+woman who works in a company. In weekdays, she may wake up at 7 am, get to
+office before 9 am, have a lunch break from 11:30 to 1:30, go back home at 5
+pm, have diner at 7 pm, go to sleep at 11 pm. Some of the times are based on
+her personal habit, while some are required by the company she works for.
+Some of them is fixed, for example, she must get to the office before 9 am,
+otherwise there will be a punishment in her salary. Some of them may differ
+everyday, such as the time she has diner. Sometimes people get diner not
+because they are hungry, but it is the time to do it. The schedule may be
+different among people, but the requirement of knowing time are the same.
 
-Most computers, including smartphones have their internal clocks to keep track
-of time. Different accuracies are required for different purposes. 
-For example, if someone needs to join a conference on time, and she can
-only get the current time from her computer. If the system time of the
-computer is a few minutes off, compared with the ``correct'' time, it may be
-acceptable. But if the offset amount is one hour, she will be there either too
-early and have to wait for one hour or too late and the conference may be over
-at that time.
+There are varies ways to let people know the time, clocks and watches are
+commonly used. In old days, people use huge clock to let everyone who can see
+it keep track of time by frequently look at it. Even today, hand watch is
+still popular no matter whether it uses quartz, which can let people get time
+easily and the only requirement is to synchronize it periodically.
+
+In modern life, computers are widely used. Most computers, including
+smartphones have their internal clocks to keep track of time. For computers, 
+time are widely used. A program which makes log file needs to know the time 
+when an event happened which it records. Some program can change the background 
+color based on time. For example, it reduce the blue color during the night
+time to protect users' eyes. Smartphones can be considered as small computers 
+and they become one of the main sources that people can get time from. Even
+simple digital systems like parking meters or home thermostats have their
+internal clocks. A parking meter needs a clock to determine when the parking
+expires. People may want their heaters turned down when they are not at home
+or sleeping and turned up before they get home and wake up. A home thermostat
+needs a clock so that it can automatically do these for them.
+
+In practice, different accuracies are required for different purposes. 
+In some cases, if the system clock of a computer which is accurate to one
+minute is enough. For example, if someone needs to join a conference on time,
+and she can only get the current time from her computer. If the system time
+of the computer is a few minutes off, compared with the ``correct'' time, it
+may be acceptable. But if the offset amount is one hour, she will be there
+either too early and have to wait for one hour or too late and the conference
+may be over at that
+time.
 
 In some other cases, a very high accuracy of system time is required. For
 example, there is a system handles stock market buy and sell orders. Generally,
@@ -43,8 +64,9 @@ As we can see in the previous example, only a ``local accuracy'' is required,
 which means that every devices in the system need to synchronize its system
 time to the same reference clock. If the reference clock is in an internal
 device, they do not have to be synchronized to external devices. In some other
-cases, a device may need to be synchronized to a standard time, such as UTC
-(Coordinated Universal Time).  
+cases, a device may need to be synchronized to a standard time. 
+UTC (Coordinated Universal Time) is one kind of standard time. 
+(Note: explain UTC here)
 
 An easy way of synchronizing a clock is to ask someone else for the time, and
 then adjusting the system clock manually. We always adjust the time of our
@@ -94,3 +116,12 @@ computers to maintain, and beyong the current ability of networks to accurately
 transmit the time from an atomic clock to a distant computer. With this fact,
 we can always improve the performance of time synchronization after we
 significantly improve hardware or network connection.
+
+\section{Contribution}
+\label{sec:contribution}
+The main purpose of this thesis is to investigate the algorithms in NTP. While 
+the official document covers all details about all technique issues, understanding
+it is in some respect too complex and requires strong background about engineering.
+This thesis is going to explain the algorithms and make some comment to help 
+people have a better understanding of NTP and it will be helpful for people who
+only interested in the algorithms.

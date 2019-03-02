@@ -11,11 +11,11 @@
     ]
     % server
     \node[textnode]  (s)                        {Server};
-    \draw[arrow]     (s) -- ($(s) + (9.5,0)$);
+    \draw[arrow]     (s) -- ($(s) + (9,0)$);
 
     % client
     \node[textnode]  (c)    [below=20mm of s]   {Client};
-    \draw[arrow]     (c) -- ($(c) + (9.5,0)$);
+    \draw[arrow]     (c) -- ($(c) + (9,0)$);
 
     % communications
     \draw[arrow]     ($(c) + (3, 0)$) -- ($(s) + (3.5, 0)$);
