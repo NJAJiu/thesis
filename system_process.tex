@@ -12,3 +12,74 @@ There are three algorithms in the system process:
     \item Clustering algorithm
     \item Mitigation algorithm
 \end{itemize}
+
+To understand the system process, we first introduce some concepts.
+
+\section{Concepts}%
+\label{sec:system_concepts}
+\begin{enumerate}
+    \item Truechimer and falseticker\\
+        A truechimer is a clock that maintains timekeeping accuracy to a
+        previously published (and trusted) standard, while a falseticker is a
+        clock that does not.
+    \item Root distance $\lambda$\\
+        Root distance is a very important statistic used in system process, it
+        ``represents the maximum error of the estimate due to all
+        causes.''~\cite{performance_metrics} The root distance is calculated as
+        the \emph{root delay} from the primary source of time plus the
+        \emph{root dispersion} of that source. Here the source is the reference
+        clock, the root delay and the root dispersion are similar with the
+        statistics delay and dispersion we discussed in
+        Chapter~\ref{cha:peer/poll_processes}, but relate to the source. We
+        will discuss relative calculations in
+        Section~\ref{sec:selection_algorithm}.
+\end{enumerate}
+
+(TODO: add purpose and figure of this part)
+
+\section{Selection algorithm}%
+\label{sec:selection_algorithm}
+The selection algorithm takes peer statistics of each peer process then
+determines truechimers among peers. The first thing is to calculate root
+distance $\lambda$ for each peer.
+
+\subsection{Root distance calculation}%
+\label{sub:root_distance_calculation}
+As mentioned in Section~\ref{sec:system_concepts}, the root distance has two
+parts: \emph{root delay} and \emph{root dispersion}. It is calculated by:
+\begin{myverbbox}
+    {\mindisp}MINDISP
+\end{myverbbox}
+\begin{equation}
+    \lambda = \frac{\max(\mindisp, \delta_p + \delta)}{2} 
+    + \varepsilon_p + \varepsilon + \varphi
+    \label{eq:root_distance}
+\end{equation}
+where 
+\begin{itemize}
+    \item $\mindisp$ is the minimum increment of dispersion.  It is used to
+        avoid timing loops in NTP subnets with very fast processors and
+        networks.~\cite{rfc5905} Its default values have three versions among
+        official documents of NTP: 5 ms,~\cite{rfc5905} 10 ms,~\cite{rfc5905}
+        and 1 ms.~\cite{performance_metrics}
+    \item $\delta_p$ is the root delay of the peer, it is in the NTP packet
+        header.
+    \item $\varepsilon_p$ is the root dispersion of the peer, it is in the NTP
+        packet header.
+    \item $\delta$, $\varepsilon$ and $\varphi$  are the peer delay, peer
+        dispersion and peer jitter we mentioned in
+        Chapter~\ref{cha:peer/poll_processes}. Note that the peer dispersion
+        $\varepsilon$ should be updated every time we access to it since it
+        increases in a constant speed $\phi = 15 ppm = 15 \mu s/s$.
+\end{itemize}
+
+
+
+\section{Clustering algorithm}%
+\label{sec:clustering_algorithm}
+
+\section{Mitigation algorithm}%
+\label{sec:mitigation_algorithm}
+
+
+
