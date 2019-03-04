@@ -45,21 +45,35 @@ distance $\lambda$ for each peer.
 
 \subsection{Root distance calculation}%
 \label{sub:root_distance_calculation}
-As mentioned in Section~\ref{sec:system_concepts}, the root distance has two
-parts: \emph{root delay} and \emph{root dispersion}. It is calculated by:
+
 \begin{myverbbox}
     {\mindisp}MINDISP
 \end{myverbbox}
+
+As mentioned in Section~\ref{sec:system_concepts}, the root distance has two
+parts: \emph{root delay} $\Delta$ and \emph{root dispersion} $E$. Furthermore, 
+we have: 
 \begin{equation}
-    \lambda = \frac{\max(\mindisp, \delta_p + \delta)}{2} 
+    \Delta = \max(\mindisp, \delta_p + \delta)
+    \label{eq:root_delay}
+\end{equation}
+and
+\begin{equation}
+    E = \varepsilon_p + \varepsilon + \varphi
+    \label{eq:root_dispersion}
+\end{equation}
+Then we have root distance $\lambda$ which is calculated by:
+\begin{align}
+    \lambda & = \frac{\Delta}{2} + E\\
+    & =\frac{\max(\mindisp, \delta_p + \delta)}{2} 
     + \varepsilon_p + \varepsilon + \varphi
     \label{eq:root_distance}
-\end{equation}
+\end{align}
 where 
 \begin{itemize}
     \item $\mindisp$ is the minimum increment of dispersion.  It is used to
         avoid timing loops in NTP subnets with very fast processors and
-        networks.~\cite{rfc5905} Its default values have three versions among
+        networks.~\cite{rfc5905} Its default value has three versions among
         official documents of NTP: 5 ms,~\cite{rfc5905} 10 ms,~\cite{rfc5905}
         and 1 ms.~\cite{performance_metrics}
     \item $\delta_p$ is the root delay of the peer, it is in the NTP packet
@@ -73,7 +87,183 @@ where
         increases in a constant speed $\phi = 15 ppm = 15 \mu s/s$.
 \end{itemize}
 
+\subsection{Pre-selection checking}%
+\label{sub:pre_selection_checking}
+After the calculation of root distance for each peer, a number of checks are
+performed, which includes the following checks:
+\begin{enumerate}
+    \item Stratum Error\\
+        As we mentioned before, the stratum numbers are between 0 and 15
+        inclusive. If the peer is never synchronized or its stratum number is
+        not in the range, an stratum error occurs.
+    \item Distance Error\\
+        There is an option called \verb|MAXDIST| which by default is 1.5s for
+        networks on the Earth and 2.5s for networks including the
+        Moon.~\cite{clock_selection} (In the RFC file, its default value is
+        1s~\cite{rfc5905}.)
+    \item Loop Error\\
+        If the peer is synchronized to the client, a loop error occurs.
+    \item Unreachable Error\\
+        If the server is Unreachable, an unreachable error occurs.
+\end{enumerate}
+If any one of the errors occurs, the relative peer is considered as
+nonselectable and will not be considered in the following selection
+algorithm.
 
+\subsection{Background}%
+\label{sub:selection_algorithm_background}
+
+% correctness interval
+For each peer, given the offset $\theta_i$ and the root distance $\lambda_i$,
+we define a correctness interval of that peer: $[\theta_i - \lambda_i,
+\theta_i + \lambda_i]$. By the definition of offset and root distance, if a
+peer is a truechimer, we know that the true offset $\theta$ should be in the
+interval, where the true offset is the offset of the reference clock relative
+to the client.
+
+In ideal situation that all peers are truechimers, and the reference clocks that
+the peers synchronized to have very small amount of offsets among them, the
+true offset should be in the intersection of all correctness intervals. In practice,
+there may be some falsetickers, whose correctness intervals may have two situations:
+\begin{enumerate}
+    \item The correctness interval of every falseticker has no intersection with
+        the correctness intervals of all truechimers.\\
+        This is a good situation that we can determine falsetickers by correctness
+        intervals.
+    \item The correctness intervals of some falsetickers have intersection with
+        the correctness intervals of all truechimers.\\
+        This is a bad situation that we cannot determine the falsetickers and the 
+        \emph{intersection interval} defined below will not contains the true offset.
+        However, we cannot do anything in this situation.
+\end{enumerate}
+
+Now we define the \emph{intersection interval} which is considered to contain
+the true offset. The \emph{intersection interval} is the largest interval
+which is subset of most correctness intervals. Note that the definition is
+not the official one since it is considered to be confused.
+Figure~\ref{fig:intersection_interval} shows an example of intersection
+interval. There are four peers, which are also called candidates, A, B, C and
+D. Their correctness intervals are the bars in the figure. As we can see,
+there is no common intersection for all of them, but there is one for A, B
+and C. In this case, candidate D is considered as a falseticker and the
+intersection interval is indicated by the two dash lines which are the lower
+and upper boundary of it.
+
+\input{figures/intersection_interval.tex}
+% fig:intersection_interval
+
+\subsection{Selection algorithm}%
+\label{sub:selection_algorithm}
+The selection algorithms is used to cleave truechimers from falsetickers. It does this
+by calculating the intersection interval given correctness intervals from all 
+candidates and "was devised by Keith Marzullo in his doctoral dissertation.
+It was first implemented in the Digital Time Synchronization Service (DTSS)
+for the VMS operating system for the VAX\null."~\cite{clock_selection}
+
+Algorithm~\ref{alg:intersection_interval} shows how to get the intersection interval.
+In the algorithm,
+$endpoints$ is a list of tuples where each tuple represents an endpoint of a
+correctness interval, it contains the id of the peer, an integer $type$ to
+indicate whether it is the high($1$) or low($-1$) endpoint of the correctness
+interval, and the $value$ of the endpoint. It is initially empty.
+
+\begin{algorithm}[ht]
+    \centering
+    \small
+    \caption{Calculates the intersection interval.}
+    \begin{algorithmic}[1]
+        \REQUIRE
+            correctness intervals.
+        \ENSURE
+            calculates the low and high endpoints of intersection interval.
+        \STATE
+            \COMMENT{initialization}
+        \STATE
+            $n \leftarrow 0, low \leftarrow 1e9, high \leftarrow -1e9$
+        \FOR{$i \leftarrow$ correctness interval}
+            \STATE
+            Adds two tuples to $endpoints$
+            \STATE
+            $n \leftarrow n + 1$
+        \ENDFOR
+        \STATE
+            Sorts $endpoints$ by the value.
+        \STATE
+        \STATE
+            \COMMENT{Start calculation}
+        \FOR{$allow \leftarrow \left[0, n/2 \right]$}
+            \STATE
+                \COMMENT{low points}
+            \STATE
+            $count \leftarrow 0$
+            \FOR{$i \leftarrow \left[0, 2n \right]$}
+                \STATE
+                $low \leftarrow endpoints[i].value$
+                \STATE
+                $count \leftarrow count - endpoints[i].type$
+                \IF{$count \geq n - allow$}
+                \STATE
+                    $break$
+                \ENDIF
+            \ENDFOR
+            \STATE
+            \STATE
+                \COMMENT{high points}
+            \STATE
+            $count \leftarrow 0$
+            \FOR{$i \leftarrow \left[2n, 0 \right]$}
+                \STATE
+                $high \leftarrow endpoints[i].value$
+                \STATE
+                $count \leftarrow count + endpoints[i].type$
+                \IF{$count \geq n - allow$}
+                    \STATE
+                    $break$
+                \ENDIF
+            \ENDFOR
+            \STATE
+            \STATE
+                \COMMENT{Check whether the intersection interval is found.}
+            \IF{$high > low$}
+                \STATE
+                $break$
+            \ENDIF
+        \ENDFOR
+    \end{algorithmic}
+\label{alg:intersection_interval}
+\end{algorithm}
+
+Note that there are some details that we need to discuss. 
+\begin{enumerate}
+    \item 
+        The initial values of $low$ and $high$ are not used unless the
+        algorithm is called when there is no candidates.
+    \item 
+        The selection sort algorithm is used here to sort the list
+        $endpoints$. It is not efficiency in principle, but it is acceptable
+        here since there should not be hundreds of thousands of tuples to be
+        sorted. In practice, each peer is manually assigned by the user of
+        NTP, so even the number of tuples should be as twice as the number of
+        peers, it will not be several hundreds. (Maybe no more than twenty.)
+    \item
+        The variable $allow$ indicates the number of falsetickers. From the
+        algorithm, we can see that if we cannot get an intersection interval
+        which is the intersection of more than half correctness intervals,
+        the algorithm gives up and no truechimers can be
+        found.~\cite{clock_selection}
+    \item
+        The algorithm first try to find an intersection of all correctness
+        intervals. If it fails, it increase $allow$ by one, then try to find
+        an intersection interval for one less correctness intervals. Then it
+        repeats the step until an intersection interval is found or $allow$
+        is to large.
+\end{enumerate}
+
+Note that the algorithm ``implementation'' in RFC5905 page 91 is completely wrong.
+
+\subsection{Midpoints of correctness intervals}
+\label{midpoints_of_correctness_intervals}
+(NOTE: finish this part after finishing this chapter)
 
 \section{Clustering algorithm}%
 \label{sec:clustering_algorithm}

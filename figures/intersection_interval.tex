@@ -1,0 +1,31 @@
+% intersection_interval.tex
+
+
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, 
+        align=center},
+        border/.style={-, draw=black, very thick, dashed},
+    ]
+    % intervals
+    \node[squarednode, minimum width=29mm] (b) {B};
+    \node[squarednode, minimum width=35mm] (a) at ($(b.south) + (0.7, -1)$) {A};
+    \node[squarednode, minimum width=50mm] (c) at ($(a.south) + (1.3, -1)$) {C};
+    \node[squarednode, minimum width=20mm] (d) [left=15mm of c] {D};
+
+    % boundary of intersection interval
+    \coordinate (c1) at ( $(c.west) + (0, -1)$);
+    \coordinate (b1) at ( $(b.west) + (0 , 1)$);
+    \draw[border] (c1)node{} -- (c1 |- b1)node{};
+
+    \coordinate (c2) at ( $(c.east) + (0, -1)$); 
+    \coordinate (b2) at ( $(b.east) + (0 , 1)$);
+    \draw[border] (b2)node{} -- (c2 -| b2)node{};
+
+\end{tikzpicture}
+\end{center}
+\caption{Intersection interval}
+\label{fig:intersection_interval}
+\end{figure}
+
