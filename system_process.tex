@@ -121,20 +121,20 @@ peer is a truechimer, we know that the true offset $\theta$ should be in the
 interval, where the true offset is the offset of the reference clock relative
 to the client.
 
-In ideal situation that all peers are truechimers, and the reference clocks that
-the peers synchronized to have very small amount of offsets among them, the
-true offset should be in the intersection of all correctness intervals. In practice,
-there may be some falsetickers, whose correctness intervals may have two situations:
+In ideal situation that all peers are truechimers, and the reference clocks
+that the peers synchronized to have very small amount of offsets among them,
+the true offset should be in the intersection of all correctness intervals. In
+practice, there may be some falsetickers, whose correctness intervals may have
+two situations:
 \begin{enumerate}
-    \item The correctness interval of every falseticker has no intersection with
-        the correctness intervals of all truechimers.\\
-        This is a good situation that we can determine falsetickers by correctness
-        intervals.
+    \item The correctness interval of every falseticker has no intersection
+        with the correctness intervals of all truechimers.\\ This is a good
+        situation that we can determine falsetickers by correctness intervals.
     \item The correctness intervals of some falsetickers have intersection with
-        the correctness intervals of all truechimers.\\
-        This is a bad situation that we cannot determine the falsetickers and the 
-        \emph{intersection interval} defined below will not contains the true offset.
-        However, we cannot do anything in this situation.
+        the correctness intervals of all truechimers.\\ This is a bad situation
+        that we cannot determine the falsetickers and the \emph{intersection
+        interval} defined below will not contains the true offset.  However, we
+        cannot do anything in this situation.
 \end{enumerate}
 
 Now we define the \emph{intersection interval} which is considered to contain
@@ -154,18 +154,19 @@ and upper boundary of it.
 
 \subsection{Selection algorithm}%
 \label{sub:selection_algorithm}
-The selection algorithms is used to cleave truechimers from falsetickers. It does this
-by calculating the intersection interval given correctness intervals from all 
-candidates and "was devised by Keith Marzullo in his doctoral dissertation.
-It was first implemented in the Digital Time Synchronization Service (DTSS)
-for the VMS operating system for the VAX\null."~\cite{clock_selection}
+The selection algorithms is used to cleave truechimers from falsetickers. It
+does this by calculating the intersection interval given correctness intervals
+from all candidates and "was devised by Keith Marzullo in his doctoral
+dissertation.  It was first implemented in the Digital Time Synchronization
+Service (DTSS) for the VMS operating system for the
+VAX\null."~\cite{clock_selection}
 
-Algorithm~\ref{alg:intersection_interval} shows how to get the intersection interval.
-In the algorithm,
-$endpoints$ is a list of tuples where each tuple represents an endpoint of a
-correctness interval, it contains the id of the peer, an integer $type$ to
-indicate whether it is the high($1$) or low($-1$) endpoint of the correctness
-interval, and the $value$ of the endpoint. It is initially empty.
+Algorithm~\ref{alg:intersection_interval} shows how to get the intersection
+interval.  In the algorithm, $endpoints$ is a list of tuples where each tuple
+represents an endpoint of a correctness interval, it contains the id of the
+peer, an integer $type$ to indicate whether it is the high($1$) or low($-1$)
+endpoint of the correctness interval, and the $value$ of the endpoint. It is
+initially empty.
 
 \begin{algorithm}[ht]
     \centering
@@ -258,8 +259,12 @@ Note that there are some details that we need to discuss.
         repeats the step until an intersection interval is found or $allow$
         is to large.
 \end{enumerate}
+If the algorithm successfully ends, the truechimers left are used in the
+clustering algorithm, otherwise nothing further happens.  The system clock of
+the client will not be synchronized.
 
-Note that the algorithm ``implementation'' in RFC5905 page 91 is completely wrong.
+Note that the algorithm ``implementation'' in RFC5905 page 91 is completely
+wrong.
 
 \subsection{Midpoints of correctness intervals}
 \label{midpoints_of_correctness_intervals}
@@ -267,9 +272,54 @@ Note that the algorithm ``implementation'' in RFC5905 page 91 is completely wron
 
 \section{Clustering algorithm}%
 \label{sec:clustering_algorithm}
+For truechimers, we can  calculate the \emph{selection jitter} statistic for
+each of them, where it is the root-mean-square (RMS) of offset differences
+between the peer and all others. The selection jitter of peer $i$ is denoted by
+$\varphi_{s,i}$ and the calculation is:
+\begin{equation}
+    \varphi_{s,i} = \sqrt{\frac{1}{m-1} \sum^{m-1}_{j=0} (\theta_i -
+    \theta_j)^2 }
+    \label{eq:selection_jitter}
+\end{equation}
+where $m$ is the number of peers left.
 
-\section{Mitigation algorithm}%
-\label{sec:mitigation_algorithm}
+The clustering algorithm does the following things:
+\begin{enumerate}
+    \item Calculates selection jitters $\varphi_{s, i}$ for each peer $i$.
+    \item Do the terminating tests, which contains two tests:
+        \begin{enumerate}
+            \item If $m < \verb|MINCLOCK|$, 
+                stops the algorithm, where $m$ is
+                the number of peers left and \verb|MINCLOCK| is a parameter
+                indicates the minimum number of survivors in this algorithm
+                whose default value is 3.~\cite{rfc5905}
+            \item If $\max(\varphi_{s,i}) < \min(\varphi_i)$, stops the
+                algorithm, where $\varphi_i$ is the jitter of peer $i$.
+        \end{enumerate}
+    \item Eliminates the peer with largest selection jitter, decreases $m$
+        by one, repeats step 1.
+\end{enumerate}
+The first one of terminating tests is quite straight forward, we add some
+detail about the second one. Recall that the peer jitter $\varphi$ is the
+root-mean-square (RMS) of offset differences between selection samples and
+valid ones in the shift register, as we mentioned in
+Section~\ref{sub:clock_filter_algorithm}. It indicates how stable the peer is.
+The selection jitter indicates how ``far'' a truechimer's offset is away from
+others.  So if $\max(\varphi_{s,i}) > \min(\varphi_i)$, that means there is at
+least one truechimer's offset which is relatively far from others. Otherwise,
+all of them are close enough.
 
+After applying the clustering algorithm, there are some peers left, which are
+called survivors. We sort
+them by their root distances $\lambda$. The current maximum selection jitter
+is saved as the system selection jitter $\phi_s$. Note that official documents
+of NTP mentioned that we should sort the survivors before applying clustering
+algorithm, which is slightly strange.
+
+\section{Combine algorithm}%
+\label{sec:combine_algorithm}
+The combine algorithm is used to compute two system statistics: system offset 
+$\Theta$ and system jitter $\vartheta$.
+% use red book
 
 
