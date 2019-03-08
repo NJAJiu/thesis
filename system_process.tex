@@ -168,7 +168,7 @@ peer, an integer $type$ to indicate whether it is the high($1$) or low($-1$)
 endpoint of the correctness interval, and the $value$ of the endpoint. It is
 initially empty.
 
-\begin{algorithm}[ht]
+\begin{algorithm}[!t]
     \centering
     \small
     \caption{Calculates the intersection interval.}
@@ -312,14 +312,50 @@ all of them are close enough.
 After applying the clustering algorithm, there are some peers left, which are
 called survivors. We sort
 them by their root distances $\lambda$. The current maximum selection jitter
-is saved as the system selection jitter $\phi_s$. Note that official documents
+is saved as the system selection jitter $\varphi_s$. Note that official documents
 of NTP mentioned that we should sort the survivors before applying clustering
 algorithm, which is slightly strange.
 
 \section{Combine algorithm}%
 \label{sec:combine_algorithm}
 The combine algorithm is used to compute two system statistics: system offset 
-$\Theta$ and system jitter $\vartheta$.
-% use red book
+$\Theta$ and system jitter $\vartheta$. Let $\theta_i, \varphi_i, \lambda_i$
+represent the peer offset, peer jitter and the root distance of the $i$th
+survivor. Here we do the following calculations:~\cite{redbook}
+\begin{equation}
+    \Theta = a \sum^{}_{i} \frac{\theta_i}{\lambda_i} \text{ and } 
+    \varphi_r = \sqrt{a \sum^{}_{i} \frac{\varphi_i ^ 2}{\lambda_i}}
+    \label{eq:system_offset_selection_jitter}
+\end{equation}
+where $a$ is the normalizer
+\begin{equation}
+    a = \left( \sum^{}_{i} \frac{1}{\lambda_i} \right) ^ {-1}
+    \label{eq:normalizer}
+\end{equation}
+and $\varphi_r$ is called the \emph{system peer jitter}.~\cite{rfc5905}
+
+Then we calculate the system jitter:~\cite{redbook}
+\begin{equation}
+    \vartheta = \sqrt{\varphi_s^2 + \varphi_r^2}
+    \label{eq:system_jitter}
+\end{equation}
+
+About the calculations:
+\begin{enumerate}
+    \item The system offset is the weighted average of peer offsets. The
+        weights are the reciprocals of root distances. This means that peers
+        have less root distance contributes more to the system offset. As
+        mentioned in Section~\ref{sec:system_concepts}, the root distance
+        represents the maximum error due to all causes. We prefer peers with
+        low errors as well as it show in the calculation.
+    \item The system peer jitter is the root-weighted-average-square of peer
+        jitters, where the weights are as the same as the weights in the
+        calculation of system offset.
+    \item The system jitter is the geometric average of selection jitter and
+        system peer jitter.
+\end{enumerate}
+
+\section{System peer selection}%
+\label{sec:system_peer_selection}
 
 

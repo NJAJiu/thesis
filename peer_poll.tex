@@ -24,6 +24,8 @@
         These definitions are in some respect confused, we will discuss it with
         more detail in Section~\ref{sec:peer_processes}.
         % from website https://www.eecis.udel.edu/~mills/ntp/html/stats.html
+    \item Jitter $\varphi$
+        TODO: add this
 \end{enumerate}
 
 \section{Overview}%
@@ -369,7 +371,16 @@ avoid the variation of offset which can be considered as error.
 As mentioned in Section~\ref{sec:peer_poll_overview}, poll processes are
 designed to control the interval of communications in order to get significant
 data without making servers too busy. 
-(TODO: review this section after finishing clock adjust process)
+
+The key part of poll process it the time constant $T_c$ and its relative
+exponent $\uptau$ where $T_c = 2 ^ {\uptau}$. A client send poll request to
+each server with a \emph{poll interval} of $T_c$ seconds. $\uptau$ is a whole
+number and is called the \emph{poll exponent}, which ranges from 4 to 17 and is
+maintained by the clock adjust process. 
+
+We will discuss the maintenance of $T_c$ and $\uptau$ in later chapter.
+
+(TODO: review this section after finishing clock adjust process, cite here)
 
 
 
