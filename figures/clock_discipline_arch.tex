@@ -1,0 +1,93 @@
+
+% clock_discipline_arch.tex
+
+\begin{figure}[htpb]
+\begin{center}
+\subfloat[clock discipline algorthm]{
+
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, minimum
+        size=15mm, minimum width=30mm, align=center},
+        circlenode/.style={circle, draw=black, very thick, minimum size=15mm},
+        border/.style={-, draw=black, very thick, dashed},
+    ]
+    % Nodes
+    \node[squarednode] (pd)                     
+                    {Phase\\ detector};
+    \node[squarednode] (cf)     [right=1cm of pd]   
+                    {Clock filter};
+    \node[squarednode] (pfp)    [below=2cm of cf]   
+                    {Phase/freq\\ prediction};
+    \node[squarednode] (ca)     [left=1cm of pfp]   
+                    {Clock\\ adjust};
+    \node[align=center](lf)     [above=of $(ca.east)!0.5!(pfp.west)$] 
+                    {Loop filter};
+    \node[circlenode]  (vfo)    [left=of $(pd.west)!0.5!(ca.west)$]   
+                    {VFO};
+    \node[align=center] (NTP)   [left=2cm of $(pd.north west)!0.5!(pd.west)$] 
+                    {NTP};
+    % lines
+    \draw[-latex, thick] (pd) -- (cf) node[midway, above] {$V_d$};
+    \draw[-latex, thick] (cf) -- ($(cf.east) + (1,0)$) 
+                                    node[midway, above] {$V_s$} 
+                               |- (pfp);
+    \draw[-latex, thick] ($(pfp.west)!0.5!(pfp.north west)$) 
+                      -- ($(ca.east)!0.5!(ca.north east)$) 
+                                    node[midway, above] {$x$};
+    \draw[-latex, thick] ($(pfp.west)!0.5!(pfp.south west)$) 
+                      -- ($(ca.east)!0.5!(ca.south east)$) 
+                                    node[midway, above] {$y$};
+
+    \draw[-latex, thick] (ca) -| (vfo) node[pos=.3, above] {$V_c$};
+    \draw[-latex, thick] (vfo) |- ($(pd.west)!0.5!(pd.south west)$) 
+                        node[pos=.73, above] {$\theta_c-$};
+    \draw[-latex, thick] (NTP) -- ($(pd.west)!0.5!(pd.north west)$) 
+                        node[pos=.5, above] {$\theta_c+$};
+
+    \draw[border] ($(ca.south west) + (-0.4, -0.4)$) 
+               |- ($(pfp.north east) + (0.4, 1.2)$)
+               |- ($(ca.south west) + (-0.4, -0.4)$);
+
+
+\end{tikzpicture}
+}
+
+\subfloat[Phase/freq prediction] {
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, minimum
+        size=15mm, minimum width=30mm, align=center},
+        circlenode/.style={circle, draw=black, very thick, minimum size=15mm},
+        border/.style={-, draw=black, very thick, dashed},
+    ]
+    % nodes
+    \node[squarednode]  (pc)                    {Phase\\ correct};
+    \node[squarednode]  (fp) [below=of pc]      {FLL\\ predict};
+    \node[squarednode]  (pp) [below=of fp]      {PLL\\ predict};
+    \node[align=center] (vs) [right=3cm of fp]  {$V_s$};
+    \node[align=center] (x)  [left=of pc]       {$x$};
+    \node[circlenode]  (sum) [left=of $(fp.west)!0.5!(pp.west)$] {$\Sigma$};
+    \node[align=center] (y)  [left=of sum]      {$y$};
+
+    % coordinates
+    \coordinate (p1) at ( $(fp.east)!0.5!(vs.west)$ );
+
+    % lines
+    \draw[-latex, thick] (vs)--(p1)node{};
+    \draw[-latex, thick] (p1)node{}|-(pc.east);
+    \draw[-latex, thick] (p1)node{}--(fp.east);
+    \draw[-latex, thick] (p1)node{}|-(pp.east);
+    
+    \draw[-latex, thick] (pc)--(x);
+    \draw[-latex, thick] (fp)-|(sum) node[pos=.3, above] {$y_{FLL}$};
+    \draw[-latex, thick] (pp)-|(sum) node[pos=.3, above] {$y_{PLL}$};
+
+    \draw[-latex, thick] (sum)--(y);
+
+\end{tikzpicture}
+}
+\end{center}
+\caption{Clock discipline process}
+\label{fig:clock_discipline_arch}
+\end{figure}
+
+
