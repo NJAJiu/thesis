@@ -1,0 +1,42 @@
+
+% clock_discipline_arch.tex
+
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=0.7, transform shape,
+        squarednode/.style={rectangle, draw=black, very thick, minimum
+        size=15mm, minimum width=30mm, align=center},
+        circlenode/.style={circle, draw=black, very thick, minimum size=15mm},
+        border/.style={-, draw=black, very thick, dashed},
+    ]
+    % nodes
+    \node[squarednode]  (pc)                    {Phase\\ correct};
+    \node[squarednode]  (fp) [below=of pc]      {FLL\\ predict};
+    \node[squarednode]  (pp) [below=of fp]      {PLL\\ predict};
+    \node[align=center] (vs) [right=3cm of fp]  {$V_s$};
+    \node[align=center] (x)  [left=of pc]       {$x$};
+    \node[circlenode]  (sum) [left=of $(fp.west)!0.5!(pp.west)$] {$\Sigma$};
+    \node[align=center] (y)  [left=of sum]      {$y$};
+
+    % coordinates
+    \coordinate (p1) at ( $(fp.east)!0.5!(vs.west)$ );
+
+    % lines
+    \draw[-latex, thick] (vs)--(p1)node{};
+    \draw[-latex, thick] (p1)node{}|-(pc.east);
+    \draw[-latex, thick] (p1)node{}--(fp.east);
+    \draw[-latex, thick] (p1)node{}|-(pp.east);
+    
+    \draw[-latex, thick] (pc)--(x);
+    \draw[-latex, thick] (fp)-|(sum) node[pos=.3, above] {$y_{FLL}$};
+    \draw[-latex, thick] (pp)-|(sum) node[pos=.3, above] {$y_{PLL}$};
+
+    \draw[-latex, thick] (sum)--(y);
+
+\end{tikzpicture}
+\end{center}
+\caption{Phase/frequency prediction}
+\label{fig:phase_frequency_prediction}
+\end{figure}
+
+

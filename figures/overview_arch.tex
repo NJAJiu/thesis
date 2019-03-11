@@ -67,26 +67,26 @@
     % server-peer/poll process
     \foreach \x/\y in {s1/p1, s2/p2, s3/p3} {
         %\draw[-] (\x) -- (\y);
-        \draw[-latex, ultra thick] ($(\x.north east)!0.5!(\x.east)$) --
+        \draw[-latex, thick] ($(\x.north east)!0.5!(\x.east)$) --
         ($(\y.north west)!0.5!(\y.west)$); 
-        \draw[latex-, ultra thick] ($(\x.south east)!0.5!(\x.east)$) --
+        \draw[latex-, thick] ($(\x.south east)!0.5!(\x.east)$) --
         ($(\y.south west)!0.5!(\y.west)$); 
     }
     % peer/poll process
-    \draw[-latex, ultra thick] (p2.north) -- (p1.south);
-    \draw[-latex, ultra thick] (p3.north) -- (p2.south);
+    \draw[-latex, thick] (p2.north) -- (p1.south);
+    \draw[-latex, thick] (p3.north) -- (p2.south);
     % peer/poll process-system process
-    \draw[-latex, ultra thick] (p1.east) -- (sa1.north west);
-    \draw[-latex, ultra thick] (p2.east) -- (sa1.west);
-    \draw[-latex, ultra thick] (p3.east) -- (sa1.south west);
+    \draw[-latex, thick] (p1.east) -- (sa1.north west);
+    \draw[-latex, thick] (p2.east) -- (sa1.west);
+    \draw[-latex, thick] (p3.east) -- (sa1.south west);
     % system process
-    \draw[latex-, ultra thick] (sa2.west) -- (sa1.east);
+    \draw[latex-, thick] (sa2.west) -- (sa1.east);
     % system process-clock discipline process
-    \draw[-latex, ultra thick] (sa2.east) -- (lf.west);
+    \draw[-latex, thick] (sa2.east) -- (lf.west);
     % clock discipline process-clock adjust process
-    \draw[-latex, ultra thick] (lf.east) -- ($(lf.east) + (1,0)$) |- (vfo.east);
+    \draw[-latex, thick] (lf.east) -- ($(lf.east) + (1,0)$) |- (vfo.east);
     % clock adjust process-poll process
-    \draw[-latex, ultra thick] (vfo.west) -| (p3.south);
+    \draw[-latex, thick] (vfo.west) -| (p3.south);
     
 
 \end{tikzpicture}

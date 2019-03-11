@@ -3,8 +3,96 @@
 
 \chapter{Clock discipline process}%
 \label{cha:clock_discipline_process}
+Now we are going to adjust the system clock of the client. As mentioned in 
+Section~\ref{sec:adjusting_system_time}, we want the system time to be changed
+``smoothly'', which means that we want to change it a little bit every time and 
+repeat it many times over a acceptable period of time. There are two
+thresholds: \emph{step} and \emph{panic}. When the offset exceeds panic
+threshold, which is 1000s, we do not adjust the time. If the offset is less
+than the panic threshold but more than the step threshold, which is 128 ms
+by default, we change the time in the ``non-smooth'' way. We say that we the
+time is stepped. If the offset is less than the step threshold, we adjust the
+time ``smoothly'', we say that the time is slewed.
+
+There is an example described in \cite{redbook}, we can compare adjusting
+system clock with driving a car on the highway. When we are driving on the
+highway, we want to keep a constant distance between us and the car in front.
+The constant distance can be considered as the reference time. We may feel that
+we are too close to or too far from the car in front. It can be considered as
+the time offset. Then we adjust the speed of our car. It is actually indirectly
+adjust the distance between us and the car in front. Note that the time of
+the system clock increases at a certain frequency. The speed of our car can be
+considered as the frequency of the system clock. The speed difference between
+our car and the car in front can be considered as the frequency offset.
+
+To understand this chapter, we introduce some concepts first. Note that it
+seems that all concepts, architectures and algorithm names are changed here in
+all official documents. It is like that documents are separated into two parts
+which are written by different people.
+
+\section{Concepts}%
+\label{sec:clock_discipline_concepts}
+\begin{enumerate}
+    \item Phase\\
+        In this chapter, phase and time are used interchangeably.
+    \item Frequency offset\\
+        As described previously, frequency offset is the difference between the
+        frequency of the system clock and the frequency of the reference clock.
+    \item Wander\\
+        Wander is the root-mean-square (RMS) of frequency offset difference. It
+        describes how stable the clock frequency is and is like jitter, which
+        is the root-mean-square of phase offset difference.
+    \item Variable frequency oscillator(VFO)\\
+        It can be considered as the system clock, which has phase and
+        frequency.
+\end{enumerate}
+
+\section{Overview}%
+\label{sec:clock_discipline_overview}
+Figure~\ref{fig:clock_discipline_arch} shows the architecture of clock
+discipline process. We can see that there is a loop, which is the same loop in 
+Figure~\ref{fig:architecture_overview}. The phase detector is part of peer
+process, which calculates offsets. The clock filter is the combination of
+the clock filter algorithm in peer process and algorithms in system process.
+Figure~\ref{fig:clock_discipline_arch} shows that the clock discipline process
+is actually a feedback control system. The VFO represents the system clock.
+``The variable $\theta_r$ represents the combined server reference phase and
+$\theta_c$ represents the control phase of the VFO.''~\cite{redbook} The signal
+$V_d$ represents the offset calculated in peer process after a update received
+from the sever. Then the signal $V_s$ is the system offset produced by the
+system process. After the signal $V_s$ is passed to the phase/frequency
+prediction part, the predicted phase adjustment $x$ and the predicted frequency
+$y$ are generated. Note that in the book~\cite{redbook}, $x$ is first called
+``phase adjustment'' and later ``phase''. Here the definitions are slightly
+modified based on the context of relative paragraphs in~\cite{redbook},
+although it makes no sense to call one adjustment while do not call the other
+one. The clock adjust process ``runs at intervals of 1s in the NTP deamon or
+one tick in the kernel''~\cite{redbook}, which generates the signal $V_c$. The
+VFO frequency $\omega_c$ is controlled by $V_c$.
 
 \input{figures/clock_discipline_arch.tex}
 % fig:clock_discipline_arch
+
+\section{PLL and FLL}%
+\label{sec:pll_and_fll}
+There are two kinds of designs: phase-locked loop (PLL) design and
+frequency-locked loop (FLL) design. In a PLL design, we change the phase
+directly and the frequency is updated indirectly. In a FLL design, we change
+the frequency directly and the phase is updated indirectly.
+
+\section{Phase/frequency prediction}%
+\label{sec:phase_frequency_prediction}
+Figure~\ref{fig:phase_frequency_prediction} shows the detail of phase/frequency
+prediction.
+
+\input{figures/phase_frequency_prediction.tex}
+% fig:phase_frequency_prediction
+
+
+\section{Clock state machine}%
+\label{sec:clock_state_machine}
+
+\section{Poll interval control}%
+\label{sec:poll_interval_control}
 
 

@@ -19,7 +19,7 @@
             ($(onwire.north west) + (-0.2, 0.2)$);
     % poll process
     \node[squarednode] (poll) at ($(onwire) + (0, -6)$) {Poll Process};
-    \draw[-latex, ultra thick] (poll) |- ($(s.south) + (0, -0.5)$) -- (s);
+    \draw[-latex, thick] (poll) |- ($(s.south) + (0, -0.5)$) -- (s);
 
     % shift registers
     \node[squarednode] (sr) at ($(onwire) + (4.5,-2)$) 
@@ -33,11 +33,11 @@
             $(\theta_7, \delta_7, \varepsilon_7, t_7)$\\
             $(\theta_8, \delta_8, \varepsilon_8, t_8)$
             };
-    \draw[-latex, ultra thick] (s) -- (sr) node[midway, above] 
+    \draw[-latex, thick] (s) -- (sr) node[midway, above] 
             {$(\theta_0, \delta_0, t_0)$};
     % clock filter algorithm
     \node[squarednode] (cf) [right=of sr] {Clock Filter\\ algorithm};
-    \draw[-latex, ultra thick] (sr) -- (cf);
+    \draw[-latex, thick] (sr) -- (cf);
 
     % peer process
     \node[align=center] (peer) [below=2mm of sr.south east] {Peer Process};
@@ -50,7 +50,7 @@
 
     % system process
     \node[squarednode] (sp) [right=2.5 of cf] {System process};
-    \draw[-latex, ultra thick] (cf) -- (sp) node[midway, above] 
+    \draw[-latex, thick] (cf) -- (sp) node[midway, above] 
             {$(\theta, \delta, \varepsilon, \varphi)$};
     
     % synchronizations
