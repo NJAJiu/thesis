@@ -8,11 +8,12 @@ Section~\ref{sec:adjusting_system_time}, we want the system time to be changed
 ``smoothly'', which means that we want to change it a little bit every time and 
 repeat it many times over a acceptable period of time. There are two
 thresholds: \emph{step} and \emph{panic}. When the offset exceeds panic
-threshold, which is 1000s, we do not adjust the time. If the offset is less
-than the panic threshold but more than the step threshold, which is 128 ms
-by default, we change the time in the ``non-smooth'' way. We say that we the
-time is stepped. If the offset is less than the step threshold, we adjust the
-time ``smoothly'', we say that the time is slewed.
+threshold, which is 1000s by default, we do not adjust the time. If the
+offset is less than the panic threshold but more than the step threshold,
+which is 128 ms by default, we change the time in the ``non-smooth'' way. We
+say that we the time is stepped. If the offset is less than the step
+threshold, we change the time ``smoothly'', we say that the time is slewed or
+adjusted.
 
 There is an example described in \cite{redbook}, we can compare adjusting
 system clock with driving a car on the highway. When we are driving on the
@@ -88,9 +89,32 @@ prediction.
 \input{figures/phase_frequency_prediction.tex}
 % fig:phase_frequency_prediction
 
+\section{Spikes and step control}%
+\label{sec:spikes_and_step_control}
+As we mentioned in Section~\ref{sub:clock_filter_algorithm}, the variance of
+offset depends on the round trip delay. We should say that the performance of
+NTP depends on the quality of network connection. The peer/poll processes are
+designed to maximize the performance of NTP while minimize the impact on
+network traffic and to minimize errors due to delay. The system process can
+produce the most reliable source that the client can synchronize to. However, 
+there still may be some spikes due to network congestion. 
+
+A \emph{noise gate} is used to deal with spikes. As mentioned at the beginning 
+of this chapter, there are two thresholds, which are \emph{step threshold} and 
+\emph{panic threshold}. If the offset exceeds step threshold, but not the panic
+threshold, we should step the time. With noise gate, we make the decision later
+since it may be a spike. Noise gate uses a watchdog counter and a
+\emph{stepout threshold}. The counter counts the seconds since the first time 
+the offset exceeds the step threshold. If the offset becomes less than the
+step threshold, the counter is set to zero. We step the time if the counter
+exceeds the stepout threshold. The default value of stopout threshold is 900s
+in~\cite{redbook} and~\cite{rfc5905}, but is 300s in (note: cite here,
+implementation and the clock state machine webpage). Then the counter is set back
+to zero.
 
 \section{Clock state machine}%
 \label{sec:clock_state_machine}
+
 
 \section{Poll interval control}%
 \label{sec:poll_interval_control}
