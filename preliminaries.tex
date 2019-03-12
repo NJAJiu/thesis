@@ -58,7 +58,23 @@ Don't forget to be formal and professional.
 
 \prefacesection{Abstract}
 
-TODO add abstract in preliminaries.tex
+Time is widely used in life. All people wants to keep their times accurate. If
+we have a mechanical watch, maybe it is sufficient to make it accurate to one
+second. However, on computers, especially on computers with high speed CPUs and
+networks, people want their system time to be more accurate.  Time is sensitive
+for some programs, such as logging program or a program relates to stock
+market. Network Time Protocol is designed to synchronize computers' system
+time. The basic idea is to let a computer communicate with servers whose system
+time are synchronized, then based on the response, the computer can change its
+system time. There are some atomic clocks which are extremely accurate. Some
+servers can synchronize to them, and more servers can synchronize to
+synchronized servers. The servers become a network.  When we want to
+synchronize our computer, we can try to synchronize to servers in the network.
+The difficulty is we do not know how long a request packet takes to travel from
+us to servers, how long it takes for a server to deal with the request and how
+long a response packet takes to travel back to us.  This thesis is going to
+investigate algorithms of Network Time Protocol to see how to solve these
+problems.
 
 %-------------------------------------------------------------------------
 

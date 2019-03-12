@@ -1,0 +1,70 @@
+% conclusion.tex
+
+\chapter{Conclusion}
+\label{cha:conclusion}
+
+As we discussed before, the Network Time Protocol (NTP) comes from the
+requirement of making system time accurate. The most commonly used standard
+time is Coordinated Universal Time (UTC), which NTP uses this as well. The UTC
+is kept by some reference clocks and only some specific servers can access and
+synchronize to them. The servers are called primary servers. Primary servers
+provide synchronization to others which means other devices can synchronize
+their system times to primary servers'. As a end user, for example, someone is
+running NTP daemon on her own laptop, should not synchronize to primary servers
+since in that case primary servers will be too busy. To deal with this problem,
+we introduced secondary servers and the concept ``stratum''. Secondary servers
+provide synchronization but they do not access to reference clocks directly.
+Stratum is another way of saying ``layer''. All primary servers are in stratum
+one. The stratum number of secondary server is equal to the stratum number of
+server that it synchronizes to plus one. For example, a secondary server which
+synchronizes to a primary server is in stratum two. 
+
+As a client, we need to send synchronization request to servers, then adjust
+system clock based on the feedback. The peer/poll processes deal with the
+communication part. Poll processes send request to servers at poll intervals.
+When a response packet arrives, we can calculate offset and round-trip delay
+based on the timestamps in the packet. We need four timestamps to do this job,
+which are when the request packet is sent and received and when the response
+packet is sent and received. We also record several recent result to measure
+the reliability of servers. One problem here is the asymmetric network delay.
+Errors caused by this are almost impossible to fix. We use huff-n'-puff
+filter to attenuate these errors.
+
+System process takes results of peer processes, produce a best estimate of
+offset to synchronize the system clock. The selection algorithm first looks at
+all peers and tries to eliminates falsetickers, which are peers that are
+considered not to have an accurate time. The algorithm let every peer provide a
+correctness interval which is the maximum range that the accurate time should
+be in. If most intervals have a common intersection, the rest which do not have
+any point in the intersection are considered as falsetickers. 
+
+The clustering tries to find a group of peers which have better performance to
+synchronize system clock. Although all peers left at that time can provide
+accurate time, some of them may have very large correctness interval. In that
+case, they are not confident about where is the accurate time. The clustering
+algorithm tries to eliminates some peers so that the left correctness intervals
+are close to each other.
+
+The combine algorithm computes system statistics used to discipline the system
+clock in clock discipline algorithm. If the algorithm runs on a server, the
+results can be used in the header of response packets. Users can designate
+prefer peer (usually one) so that the clustering and combining algorithm can be
+skipped if the peer passed the selection algorithm and its peer statistics can
+be used directly to discipline the system clock.
+
+The clock discipline process and clock adjust process actually works with
+system clock. The clock discipline algorithm discipline the time and frequency
+of system clock based on the result of system process. However, it has some
+mechanisms to avoid network spike and to reduce training time to get intrinsic
+frequency offset. NTP tries not to step the system time if possible. In that
+case, clock adjust process is used to slew it.
+
+The clock discipline process also manage the poll interval of poll processes.
+So the overview NTP architecture can be considered as a loop.
+
+During the investigation, some errors and conflicts of official documents are
+found. Apparent errors are directly fixed while conflicts are changed based on
+the implementation of NTP, which is~\cite{source_code}. There are some
+explanation added to help us understand stuff such as the meaning of
+statistics. 
+

@@ -47,35 +47,35 @@ can automatically do these things.
 
 In practice, different accuracies are required for different purposes. 
 In some cases, having the system clock of a computer accurate to one
-minute is sufficient. For example, if someone needs to join a conference on time,
+minute is sufficient. For example, a lady needs to join a conference on time,
 and she can only get the current time from her computer. If the system time
 of the computer is a few minutes off, compared with the ``correct'' time, it
 may be acceptable. But if the offset amount is one hour, she will be there
 either too early and have to wait for one hour or too late and the conference
-may be over at that
-time.
+may be over at that time.
 
 In some other cases, a very high accuracy of system time is required. For
-example, there is a system handles stock market buy and sell orders. Generally,
-more than one devices are there in the system. So that the system times among
-devices should be ``the same'' since we need to know the order of the orders at
-least. If the system is very busy and thousands orders may be created in one
-second, every device should have system time accurate to millisecond at least.
+example, there is a system handles buying and selling orders of a stock market.
+Generally, more than one devices are there in the system. So that the system
+times among devices should be ``the same'' since we need to know the order of
+the orders at least. If the system is very busy and thousands of orders may be
+created in one second, every device should have system time accurate to
+one millisecond at least.
 
 As we can see in the previous example, only a ``local accuracy'' is required,
 which means that every devices in the system need to synchronize its system
-time to the same reference clock. If the reference clock is in an internal
-device, they do not have to be synchronized to external devices. In some other
-cases, a device may need to be synchronized to a standard time. 
+time to the same source. If the source is in an internal device, they do not
+have to be synchronized to any external devices. In some other cases, a device
+may need to be synchronized to a standard time. 
 UTC (Coordinated Universal Time) is one kind of standard time, it is similar 
-to Greenwich Mean Time but the later one is not a time standard. UTC is kept
+to Greenwich Mean Time but the later one is not a standard one. UTC is kept
 using atomic clocks, which can be considered as very accurate, and combined
 with the earth rotation. It is widely used for time synchronization purpose.
 
 An easy way of synchronizing a clock is to ask someone else for the time, and
 then adjusting the system clock manually. We always adjust the time of our
-watches like that. This level of  accuracy is quite enough if we do not need
-our watches accurate to the second. 
+watches like that. This level of accuracy is quite sufficient if we do not need
+our watches accurate to one second. 
 
 What about to imply this method on synchronizing computers system clock? Assume
 computer A wants to synchronize to computer B, A can send a message to B then B
@@ -83,21 +83,21 @@ checks its time and replies to A\null. Then A can adjust its system time.
 But there are a lot of problems.  The core one is that when A receives
 the time, it can only know the time was when B checked its time. A cannot know
 how long it is from then to when A receives the message. To solve these
-problems, the \emph{network time protocol} (NTP) is developed for devices to
+problems, the \emph{Network Time Protocol} (NTP) is developed for devices to
 synchronize their system times over networks. 
 
 \section{Computers' Clocks}
 \label{sec:computers_clocks}
 Different computers may use different hardware methods to maintain system time.
-It relates to hardware architecture and operating system design. But they have
+It relates to hardware architecture and operating system design, but they have
 the same fundamental idea: increasing a counter with a ``constant'' frequency,
-such as 1 GHz.
-Based on the frequency and the counter, the system time can be calculated
-when necessary. But in practice, the frequency is not constant. First of all,
-there may be some manufacturing error, which makes it slightly different from
-what it should be. Second, the frequency can be affected by temperature,
-humidity and so on. So the system clock can be very inaccurate if it has not
-been synchronized for quite a long time, and the offset is unpredictable.
+such as 1 GHz.  Based on the frequency and the counter, the system time can be
+calculated when necessary. However, in practice, the frequency is not constant.
+First of all, there may be some manufacturing error, which makes it slightly
+different from what it should be. Second, the frequency can be affected by
+temperature, humidity and so on. So the system clock can be very inaccurate if
+it has not been synchronized for quite a long time, and the offset is
+unpredictable.
 
 \section{Trend}
 \label{sec:trend}
@@ -106,9 +106,9 @@ performance, the quality of network connection and the synchronization protocol
 itself. 
 As we have faster internet connections, and more powerful CPUs, we have a
 better opportunity to more accurately set system clocks. As we have more
-accurate system clocks, we can do more real-time stuff on internet. As we do
-more real-time stuff on internet, we desire more accurate system clock. We
-always want to make system clocks as accurate as possible after the
+accurate system clocks, we can do more time sensitive stuff on internet. As we
+do more that kind of stuff on internet, we desire more accurate system clock.
+We always want to make system clocks as accurate as possible after the
 improvements of internet connection and CPUs. 
 
 In real life, atomic clocks are considered the most accurate. In 2015 the most
@@ -126,6 +126,7 @@ significantly improve hardware or network connection.
 The main purpose of this thesis is to investigate the algorithms in NTP\null.
 While the official document covers all details about all technique issues,
 understanding it is in some respect too complex and requires strong background
-about engineering.  This thesis is going to explain the algorithms and make
+about engineering. This thesis is going to explain the algorithms and make
 some comment to help people have a better understanding of NTP and it will be
 helpful for people who only interested in the algorithms.
+

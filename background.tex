@@ -34,12 +34,12 @@ The latest version of NTP follows RFC-5905, which is version 4 and presented in
 \section{Reference clocks}%
 \label{sec:reference_clocks}
 ``A reference clock is some device or machinery that spits out the current
-time''. 
+time''~\cite{reference_clock}.
 % http://www.ntp.org/ntpfaq/NTP-s-algo.htm#Q-REFCLK
 The most important thing for reference clock is its accuracy, it must be
-synchronized to some time standard. If we want to synchronize a device to UTC,
-it requires reference clocks as sources. Some of them are available for many
-government dissemination services, includes:
+synchronized to some time standard (usually UTC). If we want to synchronize a
+device to UTC, it requires reference clocks as sources. Some of them are
+available for many government dissemination services, includes:~\cite{redbook}
 \begin{itemize}
     \item Global Positioning System (GPS) and Long-Range navigation (LORAN-C)
         systems
@@ -60,10 +60,10 @@ clock.
 \label{sec:adjusting_system_time}
 As mentioned in Section~\ref{sec:computers_clocks}, every computer should have
 a constant frequency to increase the number in a counter then calculate system
-time. But in practice, the frequency may not be accurate. In this case, even if
-at some time we synchronized the system time to UTC or a reference clock, it
-will be inaccurate later. This fact make it necessary to synchronize a device
-frequently.
+time. However, in practice, the frequency may be nether accurate nor
+consistent. In this case, even if at some time we synchronized the system time
+to UTC or a reference clock, it will be inaccurate later. This fact make it
+necessary to synchronize a device frequently.
 
 When system clock is adjusted by NTP\null, both the time and the frequency
 will be adjusted. NTP uses \verb|ntp_adjtime()| or \verb|adjtime()| to adjust
@@ -74,7 +74,8 @@ this case, any running program which is sensitive to time, such as a logging
 program, will only be slightly impacted. If we want to change system time
 back for some amount, it will not make later things ``happened'' earlier in
 the log. If we want to change system time forwardly, there will not be a gap
-in the time line, where nothing happened during that time.
+in the time line, where nothing happened during that time. However, if the
+offset it big, NTP will also change the system time to another value.
 
 % \section{Concepts}%
 % \label{sec:concepts}
