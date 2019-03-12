@@ -10,7 +10,7 @@ There are three algorithms in the system process:
 \begin{itemize}
     \item Selection algorithm
     \item Clustering algorithm
-    \item Mitigation algorithm
+    \item Combining algorithm
 \end{itemize}
 
 To understand the system process, we first introduce some concepts.
@@ -37,7 +37,15 @@ To understand the system process, we first introduce some concepts.
 
 \section{Overview}%
 \label{sec:system_overview}
+
+Figure~\ref{fig:system_process} shows the basic structure of system process.
+The selection algorithm takes peer statistics calculated by peer processes,
+then eliminates falsetickers. The clustering algorithm select the best
+truechimers then the combining algorithm calculates system statistic and pass
+them to the clock discipline algorithm.
+
 \input{figures/system_process}
+% fig:system_process
 
 
 \section{Selection algorithm}%

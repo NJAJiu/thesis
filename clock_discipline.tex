@@ -128,9 +128,8 @@ later since it may be a spike. Noise gate uses a watchdog counter and a
 the offset exceeds the step threshold. If the offset becomes less than the step
 threshold, the counter is set to zero. We step the time if the counter exceeds
 the stepout threshold. The default value of stopout threshold is 900s
-in~\cite{redbook} and~\cite{rfc5905}, but is 300s in (note: cite here,
-implementation and the clock state machine webpage). Then the counter is set
-back to zero.
+in~\cite{redbook} and~\cite{rfc5905}, but is 300s in~\cite{source_code}
+and~\cite{clock_state_machine}. Then the counter is set back to zero.
 
 With the noise gate, we can avoid stepping time when a spike occurs. If the
 time offset is large, there should be continuous ``spikes''. So we step the
@@ -236,8 +235,8 @@ As mentioned in Chapter~\ref{cha:peer/poll_processes}, poll intervals are
 maintained by the clock discipline process. Note that the algorithm described
 below is a combination of descriptions from various NTP documents, the
 descriptions from~\cite{redbook}, \cite{poll_process} and~\cite{rfc5905} are
-ALL different with each other. Here the description is based on the
-implementation. (note: cite the source code)
+ALL different from each other. Here the description is based on the
+implementation~\cite{source_code}.
 
 Recall that the length of poll interval is called time constant, represented by
 $T_c$ and we have $T_c = 2^\uptau$ where $\uptau$ is called time exponent.

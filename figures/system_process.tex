@@ -1,4 +1,4 @@
-% overview-arch.tex
+% figurs/system_process.tex
 
 \begin{figure}[htpb]
     \begin{center}
@@ -17,22 +17,30 @@
     \node[squarednode] (sa1) {Selection\\ algorithm};
     \node[squarednode] (sa2) [right=of sa1] {Clustering\\ algorithm};
     \node[squarednode] (sa3) [right=of sa2] {Combining\\ Algorithms};
-    \node[align=center](lab3)[above=5mm of sa3] {System\\ Process};
-    \draw[border] ($(lab3.north east) + (1.0, 0.2)$) -| ($(sa1.south west) +
-    (-0.4, -0.8)$);
-    \draw[border] ($(lab3.north east) + (1.0, 0.2)$) |- ($(sa1.south west) +
-    (-0.4, -0.8)$)
+    \node[align=center](lab3)[above=5mm of sa2] {System\\ Process};
+    \draw[border] ($(lab3.north east) + (1.0, 0.2)$) 
+        -| ($(sa1.south west) + (-0.4, -0.8)$) 
+        -- ($(sa3.south east) + (0.4, -0.8)$) 
+        |- ($(lab3.north east) + (1.0, 0.2)$);
 
+    % peer
+    \node[squarednode] (p) [left=of sa1] {Peer\\ statistics};
+
+    % clock discipline
+    \node[squarednode] (cd) [right=of sa3] {Clock discipline\\ process};
     % Lines
+
     % system process
-    \draw[-latex, thick] (sa1.east) -- (sa2.west) node[midway, above]{Truechimers};
-    \draw[-latex, thick] (sa2.east) -- (sa3.west) node[midway, above]{Survivers};
+    \draw[-latex, thick] (sa1.east) -- (sa2.west);
+    \draw[-latex, thick] (sa2.east) -- (sa3.west);
+    \draw[-latex, thick] (p.east) -- (sa1.west);
+    \draw[-latex, thick] (sa3.east) -- (cd.west); 
         
     
 \end{tikzpicture}
 \end{center}
 \caption{System process overview}
-\label{fig:system_process_overview}
+\label{fig:system_process}
 \end{figure}
     
     
