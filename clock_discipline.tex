@@ -67,24 +67,39 @@ $y$ are generated. Note that in the book~\cite{redbook}, $x$ is first called
 ``phase adjustment'' and later ``phase''. Here the definitions are slightly
 modified based on the context of relative paragraphs in~\cite{redbook},
 although it makes no sense to call one adjustment while do not call the other
-one. The clock adjust process ``runs at intervals of 1s in the NTP deamon or
+one. The clock adjust process ``runs at intervals of 1s in the NTP daemon or
 one tick in the kernel''~\cite{redbook}, which generates the signal $V_c$. The
 VFO frequency $\omega_c$ is controlled by $V_c$.
 
 \input{figures/clock_discipline_arch.tex}
 % fig:clock_discipline_arch
 
-\section{PLL and FLL}%
-\label{sec:pll_and_fll}
-There are two kinds of designs: phase-locked loop (PLL) design and
-frequency-locked loop (FLL) design. In a PLL design, we change the phase
-directly and the frequency is updated indirectly. In a FLL design, we change
-the frequency directly and the phase is updated indirectly.
 
 \section{Phase/frequency prediction}%
 \label{sec:phase_frequency_prediction}
-Figure~\ref{fig:phase_frequency_prediction} shows the detail of phase/frequency
-prediction.
+There are two kinds of designs: phase-locked loop (PLL) design and
+frequency-locked loop (FLL) design. In a PLL design, we change the phase
+directly and the frequency is updated indirectly. In a FLL design, we change
+the frequency directly and the phase is updated indirectly. In the current version
+of NTP (version 4) the two types of designs are combined together. 
+
+Figure~\ref{fig:phase_frequency_prediction} shows the process of phase/frequency
+prediction. We have $x = V_s$ and $y = y + y_{PLL} + y_{FLL}$, where
+\begin{equation}
+    y_{PLL} = \frac{V_s\mu}{\left(64T_c\right)^2},
+    y_{FLL} = \frac{V_s-x_r}{8\mu}
+    \label{eq:y_pll}
+\end{equation}
+note that $\mu$ is the time since last update and $x_r$ is the residual phase
+error computed by the clock adjust process. This calculation is used to adjust
+frequency and we will see that in Section~\ref{sec:clock_state_machine}.
+
+Otherwise, the frequency offset $\Phi$ is directly calculated by:
+\begin{equation}
+    \Phi = \frac{\Theta}{\mu}
+    \label{eq:frequency_offset}
+\end{equation}
+This is used to step frequency in Section~\ref{sec:clock_state_machine}.
 
 \input{figures/phase_frequency_prediction.tex}
 % fig:phase_frequency_prediction
@@ -101,22 +116,153 @@ there still may be some spikes due to network congestion.
 
 A \emph{noise gate} is used to deal with spikes. As mentioned at the beginning 
 of this chapter, there are two thresholds, which are \emph{step threshold} and 
-\emph{panic threshold}. If the offset exceeds step threshold, but not the panic
-threshold, we should step the time. With noise gate, we make the decision later
-since it may be a spike. Noise gate uses a watchdog counter and a
-\emph{stepout threshold}. The counter counts the seconds since the first time 
-the offset exceeds the step threshold. If the offset becomes less than the
-step threshold, the counter is set to zero. We step the time if the counter
-exceeds the stepout threshold. The default value of stopout threshold is 900s
+\emph{panic threshold}. If the offset exceeds the step threshold, but not the
+panic threshold, we should step the time. With noise gate, we make the decision
+later since it may be a spike. Noise gate uses a watchdog counter and a
+\emph{stepout threshold}. The counter counts the seconds since the first time
+the offset exceeds the step threshold. If the offset becomes less than the step
+threshold, the counter is set to zero. We step the time if the counter exceeds
+the stepout threshold. The default value of stopout threshold is 900s
 in~\cite{redbook} and~\cite{rfc5905}, but is 300s in (note: cite here,
-implementation and the clock state machine webpage). Then the counter is set back
-to zero.
+implementation and the clock state machine webpage). Then the counter is set
+back to zero.
+
+With the noise gate, we can avoid stepping time when a spike occurs. If the
+time offset is large, there should be continuous ``spikes''. So we step the
+time when them occurs longer than the stepout threshold. We can see that NTP
+does not want to step the time unless there is sufficient evidence.
+
+\section{Intrinsic frequency offset}%
+\label{sec:intrinsic_frequency_offset}
+As mentioned in~\ref{sec:adjusting_system_time}, each system clock has an
+intrinsic frequency, it may not be accurate. The accurate frequency should be
+1s/s, which means that the clock should go forward one second every second. The
+intrinsic frequency may be some other number. In that case, there is a
+frequency offset. Note that in the implementation of NTP\null, they use
+frequency to represent frequency offset. 
+
+Imagine that we stepped the system time at some time. After a period of time,
+there may be another time offset because of the frequency offset. NTP can
+determine the frequency offset from current offset and the time period length.
+However, it may take hours of time~\cite{redbook}. 
+
+One solution of this problem is to record the frequency offset into a file,
+which is called \emph{frequency file}. On Ubuntu 18.04.2 LTS, with the NTP
+daemon program \verb|ntpd| version 4.2.8p10, the file is
+\verb|/var/lib/ntp/ntp.drift|. The \verb|ls -l| command shows that the owner of
+the file is \verb|ntp| in group \verb|ntp| and the permission of the file is
+644. When the ntp daemon is running, the file is updated in hourly interval.
+
+This solution can reduce the training time after the system is reboot and
+connected into a congest network. After rebooting, the frequency can be
+initialize based on the result of previously execution of the daemon.  
+
+If we start up the NTP daemon without the frequency file, it first changes the
+time (step or adjust, based on the offset) and then starts the watchdog counter
+mentioned in Section~\ref{sec:spikes_and_step_control} after a valid update
+arrives. Then the time will not be changed until the counter exceeds the
+stepout threshold.  After that, the frequency is stepped and then the time can
+be changed.
 
 \section{Clock state machine}%
 \label{sec:clock_state_machine}
+There is a clock state machine which combines the ideas mentioned before. 
+The table\ref{tab:clock_state_machien_transition_function} shows the states
+and transitions, which is based on the same table in~\cite{redbook} with some
+changes. Note that in the same table in~\cite{rfc5905}, there is an apparent
+error that in the cell where the state is \verb|FREQ| and $|\Theta| >$
+\verb|STEP|, it should be ``step time'' instead of ``adjust time''.
 
+\begin{table}[ht]
+    \centering
+    \caption{Clock State Machine Transition Function}
+    \label{tab:clock_state_machien_transition_function}
+    \begin{tabular}{|c|p{43mm}|p{43mm}|c|}
+        \hline
+        State &\hfil $|\Theta|\le$ \verb|STEP| & \hfil $|\Theta|>$ \verb|STEP| 
+        & Comments \\
+        \hline
+        \verb|NSET| & \verb|>FREQ|; adjust time & \verb|>FREQ|; step time 
+            & No frequency file \\
+        \hline
+        \verb|FREQ| & \verb|>SYNC|; adjust time & \verb|>SYNC|; step time
+            & Frequency file \\
+        \hline
+        \verb|SPIK| & \verb|>SYNC|; adjust freq; adjust time 
+        & if ($\mu <$ \verb|STEPOUT|) \verb|>SPIK| \newline 
+        else \verb|>SYNC|; step freq; step time;
+        & Outlier detected \\
+        \hline
+        \verb|FREQ| & if ($\mu <$ \verb|STEPOUT|) \verb|>FREQ| \newline 
+        else \verb|>SYNC|; step freq; adjust time;
+        & if ($\mu <$ \verb|STEPOUT|) \verb|>FREQ| \newline 
+        else \verb|>SYNC|; step freq; step time;
+        & Initial frequency \\
+        \hline
+        \verb|SYNC| & \verb|>SYNC|; adjust freq; adjust time;
+        & if ($\mu <$ \verb|STEPOUT|) \verb|>SPIK| \newline 
+        else \verb|>SYNC|; step freq; step time; & Normal operation \\
+        \hline
+    \end{tabular}
+\end{table}
+
+In the table, $\Theta$ is the system offset, \verb|STEP| and \verb|STEPOUT| are
+the step threshold and stepout threshold, the notation \verb|>| indicates the
+next state, $\mu$ is the watchdog counter mentioned in
+Section~\ref{sec:spikes_and_step_control} and
+Section~\ref{sec:intrinsic_frequency_offset}. After the NTP daemon starts up,
+the machine enters either \verb|NSET| state or \verb|FSET| state depends on
+whether there is a frequency file. Note that in all cells which contain if
+statement, the frequency and time are only changed inside of the else branch.
+
+\section{Clock adjust process}%
+\label{sec:clock_adjust_process}
+The functionality of clock adjust process depends on how the time is changed.
+If the time is stepped, a system call like \verb|settimeofday()| is called. If
+the time is slewed, the \verb|adjtime()| or \verb|ntp_adjtime()| system call is
+used every one second and a phase increment $z=\frac{x}{16T_c}$ is passed to
+the system call, where $x$ is computed in
+Section~\ref{sec:phase_frequency_prediction}. Then the $x$ is updated as
+$x=x-z$ where the updated $x$ is called the residual phase error.
 
 \section{Poll interval control}%
 \label{sec:poll_interval_control}
+As mentioned in Chapter~\ref{cha:peer/poll_processes}, poll intervals are
+maintained by the clock discipline process. Note that the algorithm described
+below is a combination of descriptions from various NTP documents, the
+descriptions from~\cite{redbook}, \cite{poll_process} and~\cite{rfc5905} are
+ALL different with each other. Here the description is based on the
+implementation. (note: cite the source code)
+
+Recall that the length of poll interval is called time constant, represented by
+$T_c$ and we have $T_c = 2^\uptau$ where $\uptau$ is called time exponent.
+
+When the daemon starts up, we do nothing about poll intervals in the first
+\verb|STEPOUT| seconds, where \verb|STEPOUT| is the stepout interval.
+To maintain the poll interval, we need a statistic: \emph{clock jitter} $\psi$.
+It is initialize to the precision of system clock when the daemon starts up and
+will not change after \verb|STEPOUT| seconds. After that, when a update of
+system offset $\Theta$ comes, the jitter is updated. If $\Theta > $
+\verb|STEP|, the clock jitter is changed into its initial value; otherwise the
+clock jitter is updated as:
+\begin{equation}
+    \psi = \sqrt{ \frac{7}{8}\psi_{old}^2 + \frac{1}{8}\left(\Theta -
+    \Theta_{old}\right)^2 }
+    \label{eq:clock_jitter}
+\end{equation}
+where $\psi_{old}$ is the old clock jitter and $\Theta_{old}$ is the last
+updated system offset. 
+
+We need a counter called \emph{jiggle counter}, which is initialize to zero. If
+the system offset exceeds the step interval, it is also set to zero. When the
+system offset does not exceed the step interval:
+if $\Theta < 4 \times \psi$, the counter increases by $\uptau$; 
+otherwise the counter decreases by $2\uptau$.
+When the jiggle counter is larger than 30, we increase $\uptau$ by 1; when it is
+less than $-30$, we decrease $\uptau$ by 1. After we change $\uptau$, the
+jiggle counter will be set to zero. ``In effect, the algorithm has a relatively
+slow reaction to good news, but a relatively fast reaction to bad
+news.''~\cite{poll_process}
+
 
 
