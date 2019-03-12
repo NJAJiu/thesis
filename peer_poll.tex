@@ -1,6 +1,9 @@
 % peer_poll.tex
 \chapter{Peer/Poll Processes}
 \label{cha:peer/poll_processes}
+Before discussing peer/poll processes in this chapter, we need to go through
+some concepts. Some of them may not be clear at this point, we will discuss
+them with more detail later.
 
 \section{Concepts}%
 \label{sec:peer/poll_concepts}
@@ -24,8 +27,9 @@
         These definitions are in some respect confused, we will discuss it with
         more detail in Section~\ref{sec:peer_processes}.
         % from website https://www.eecis.udel.edu/~mills/ntp/html/stats.html
-    \item Jitter $\varphi$
-        TODO: add this
+    \item Jitter $\varphi$\\
+        The root-mean-square (RMS) of a series of time offsets. It indicates 
+        how stable the offset is.
 \end{enumerate}
 
 \section{Overview}%
@@ -97,8 +101,10 @@ The delay $\delta$ is calculated by:
 \end{equation}
 It is actually a difference of two time periods. It is not impacted by the
 offset, since each time period is calculated using two timestamps from the same
-device.
-(NOTE: add the impact of frequency offset.)
+device. As mentioned in Section~\ref{sec:adjusting_system_time}, the frequency of 
+system clock may not be accurate. It also impacts the calculation here. We
+will discuss this more in Section~\ref{sec:phase_frequency_prediction} and
+Section~\ref{sec:intrinsic_frequency_offset}.
 
 There is another statistic $t$ in Figure~\ref{fig:peer_poll_processes}, which
 indicates the time that the offset $\theta$ and delay $\delta$ are calculated.
@@ -195,7 +201,7 @@ Where
         $\rho_r$ is the root precision in NTP packet. 
     \item 
         $\rho_s$ is the system
-        precision which we will discuss in next chapter. (NOTE: REF HERE).
+        precision which we will discuss later.
     \item
         $\phi = 15 ppm = 15 \mu s/s$ is a constant.
     \item
@@ -203,7 +209,11 @@ Where
         other word, $T_5$ is \emph{dst} and $T_2$ is \emph{org}.
 \end{itemize}
 After storing the sample statistics into the shift register, the peer process
-increases dispersion in a constant rate $\phi$.
+increases dispersion in a constant rate $\phi$. 
+
+The system precision is automatically determined by NTP, it represents the ``
+the smallest possible increase of time that can be experienced by a
+program''~\cite{precision}.
 
 In Section~\ref{sec:peer/poll_concepts} we mentioned that dispersion is the
 maximum error. Now we can consider dispersion as a function of time ($t$) and
@@ -215,7 +225,9 @@ we have:
 In Equation~\ref{eq:dispersion}, dispersion has two parts. $\rho_r + \rho_s$
 represents the error due to the precisions of server and client clocks. $\phi
 (t - T_2)$ represents the error due to frequency tolerance and time.
-(TODO: add more about 15 ppm)
+The $\phi = 15ppm$ is a frequency tolerance which represent the maximum
+frequency offset after the intrinsic frequency offset is determined as
+described in Section~\ref{sec:intrinsic_frequency_offset}.
 
 \subsection{Initial and invalid samples}%
 \label{sub:initial_and_invalid_samples}
@@ -245,7 +257,7 @@ passes them to the system process as well as the arrive time of selected
 sample.
 
 Figure~\ref{fig:clock_filter} is ``a wedge scattergram plotting sample points of
-offset versus delay collected over a 24-hr period''. (NOTE: cite here) It shows
+offset versus delay collected over a 24-hr period''~\cite{clock_filter}. It shows
 that with as the delay increases, the variance of offset increases as well. In
 this case, the best sample should be the one with lowest delay. We will discuss
 this more in Section~\ref{sub:huff_n_puff_filter}.
@@ -284,7 +296,7 @@ change much if we did not adjust client's system clock by a large amount.
 \label{sub:huff_n_puff_filter}
 Now we are going to look at Figure~\ref{fig:clock_filter} closely. In the
 figure, ``there are two limb lines with at slope $\pm0.5$, representing the
-limits of sample variation''. (NOTE: cite here) 
+limits of sample variation''~\cite{clock_filter}.
 The variation of offset is caused by the asymmetric delay, and it is actually
 an error.
 
@@ -325,8 +337,9 @@ Figure~\ref{fig:huff_n_puff2} shows the scattergram like
 Figure~\ref{fig:huff_n_puff1}, but the network delay is much asymmetric. From
 the figure, we find that the samples are close to the upper limb line, which
 indicates that the offset error is positive. This means that the upload delay
-is larger than the download delay. By applying huff-n'-puff filter, we can do
-the following stuff:
+is larger than the download delay. However, the document in~\cite{huff_n_puff}
+shows the opposite opinion, which is wrong. By applying huff-n'-puff filter,
+we can do the following stuff:
 \begin{itemize}
     \item 
         Remember the recent sample with lowest delay where ``recent'' usually
@@ -353,7 +366,7 @@ the following stuff:
 % fig:huff_n_puff2
 
 Note that this adjustment is actually move the sample points close to the
-vertical line which go through the point $(\delta_0, \theta_0)$, if the samples
+horizontal line which go through the point $(\delta_0, \theta_0)$, if the samples
 are near the upper limb line, as Figure~\ref{fig:huff_n_puff2} shows. It is
 also said that it is less effective and will lead to significant errors if a
 large amount of samples are in the area between the limb
@@ -375,13 +388,16 @@ data without making servers too busy.
 The key part of poll process it the time constant $T_c$ and its relative time
 exponent $\uptau$ where $T_c = 2 ^ {\uptau}$. A client send poll request to
 each server with a \emph{poll interval} of $T_c$ seconds. $\uptau$ is a whole
-number and is called the \emph{poll exponent}, which ranges from 4 to 17 and is
-maintained by the clock adjust process. 
+number and is called the \emph{poll exponent}, which ranges from 4 to
+17~\cite{rfc5905}.
 
 $T_c$ and $\uptau$ are maintained by the clock discipline process, will discuss
 it later in Chapter~\ref{cha:clock_discipline_process}.
 
-(TODO: add burst, iburst, cite here)
-
-
-
+There are two options: \verb|BURST| and \verb|IBURST|. With the \verb|BURST|
+option, instead of sending one request at each poll interval, the poll
+process sends 8 packets. The interval between each packet is 2s. With the
+\verb|IBURST| option, when a server is unreachable, it sends 8 packets at 2-s
+intervals. The \verb|IBURST| option is used to reduce the synchronization
+time at initial starts up while the \verb|BURST| option can reduce noise at
+long poll intervals~\cite{poll_process}.

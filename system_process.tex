@@ -35,7 +35,10 @@ To understand the system process, we first introduce some concepts.
         Section~\ref{sec:selection_algorithm}.
 \end{enumerate}
 
-(TODO: add purpose and figure of this part)
+\section{Overview}%
+\label{sec:system_overview}
+\input{figures/system_process}
+
 
 \section{Selection algorithm}%
 \label{sec:selection_algorithm}
@@ -266,9 +269,9 @@ the client will not be synchronized.
 Note that the algorithm ``implementation'' in RFC5905 page 91 is completely
 wrong.
 
-\subsection{Midpoints of correctness intervals}
-\label{midpoints_of_correctness_intervals}
-(NOTE: finish this part after finishing this chapter)
+% \subsection{Midpoints of correctness intervals}
+% \label{midpoints_of_correctness_intervals}
+% (NOTE: finish this part after finishing this chapter)
 
 \section{Clustering algorithm}%
 \label{sec:clustering_algorithm}
@@ -316,9 +319,9 @@ is saved as the system selection jitter $\varphi_s$. Note that official document
 of NTP mentioned that we should sort the survivors before applying clustering
 algorithm, which is slightly strange.
 
-\section{Combine algorithm}%
+\section{Combining algorithm}%
 \label{sec:combine_algorithm}
-The combine algorithm is used to compute two system statistics: system offset 
+The combining algorithm is used to compute two system statistics: system offset 
 $\Theta$ and system jitter $\vartheta$. Let $\theta_i, \varphi_i, \lambda_i$
 represent the peer offset, peer jitter and the root distance of the $i$th
 survivor. Here we do the following calculations:~\cite{redbook}
@@ -357,5 +360,15 @@ About the calculations:
 
 \section{System peer selection}%
 \label{sec:system_peer_selection}
+Users can designate one or more sources as \emph{prefer peer} but it is
+usually not useful to designate more than one. Unless the prefer peer is
+discarded by the selection algorithm, it becomes the \emph{system peer} and
+the combine algorithm is not used. The system jitter and offset are the
+prefer peer's jitter and offset respectively. Otherwise, the first peer in
+the sorted list of survivors becomes the system peer. 
 
+There are some system variables comes from system peer. The important ones
+includes the stratum number, which is the stratum of system peer plus one.
+The system root delay and root dispersion are calculated using
+Ejsdfquation~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
 

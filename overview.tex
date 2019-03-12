@@ -12,15 +12,16 @@ but they do not provide synchronization to others.
 \section{Protocol modes}%
 \label{sec:protocol_modes}
 NTP has three basic protocol modes: \emph{server/client}, \emph{symmetric}
-and \emph{broadcast}. They are also called association modes. (NOTE: I DID NOT
-FIND ANY DEFINITION OF ASSOCIATION!) In the server/client variant, clients send
-requests to server for synchronization, and servers handle the request and send
-response. We say "clients pull synchronization from servers".
-The broadcast is like the opposite mode of server/client mode, in which servers
-push synchronization to clients. Symmetric mode is a combination of two
-server/client modes and two broadcast modes. In symmetric variant, a peer
-operates as both client and server and each peer both push and poll
-synchronization to and from each other.~\cite{rfc5905}
+and \emph{broadcast}. They are also called association modes. 
+%(NOTE: I DID NOT FIND ANY DEFINITION OF ASSOCIATION!)
+In the server/client variant, clients send requests to server for
+synchronization, and servers handle the request and send response. We say
+"clients pull synchronization from servers". The broadcast is like the
+opposite mode of server/client mode, in which servers push synchronization to
+clients. Symmetric mode is a combination of two server/client modes and two
+broadcast modes. In symmetric variant, a peer operates as both client and
+server and each peer both push and poll synchronization to and from each
+other.~\cite{rfc5905}
 
 There are two interleaved modes which we will discuss in
 Section~\ref{sub:timestamps_in_ntp_packet}.
@@ -52,7 +53,7 @@ As people want their devices to be accurate, it is better to synchronize to
 primary servers. But this can make primary servers very busy. Based on the rule
 of engagement for NTP users, ``clients should avoid using primary servers
 whenever possible''. Even though, some busy primary servers have more than 700
-clients. (Note: Clients?)
+clients. 
 % http://support.ntp.org/bin/view/Servers/RulesOfEngagement
 It is said that the synchronizations provided by secondary servers in stratum 2
 are accurate enough for most end-users. And clients are suggested to use three
@@ -73,7 +74,7 @@ can be separated into the following processes:
         This part deal with communications between client and servers. It has
         poll processes and peer processes. Poll processes send requests to
         servers. Peer processes keep track of a set of statistics for every
-        server (peer?). 
+        server.
     \item System Process\\
         System process has algorithms to do some filter and correction work to
         the statistics of all peers, then pass them to clock discipline
@@ -84,14 +85,22 @@ can be separated into the following processes:
         % red book p. 40
     \item Clock Adjust Process\\
         This part adjusts the system clock to make it continuous and monotonic
-        approximately. (Note: feedback?)
+        approximately. 
         % red book p. 40
 \end{itemize}
+The structure of NTP is like a loop. It requests synchronization to servers, after
+gets response, it deals with it then adjust system time. After that, there are some
+feedback used to control poll processes.
+
+In later chapters, we will discuss peer/poll processes and system process
+separately, and discuss clock discipline process and clock adjust process
+together. Note that, in NTP official documents, ``server'' and ``peer'' are
+used interchangeably.
 
 % This figure is made based on the figure from
 % https://www.eecis.udel.edu/~mills/ntp/html/warp.html
 % fig:architecture_overview
 \input{figures/overview_arch}
 
-(What is the stuff I want to add here when I was taking shower on Fer 5?)
+% (What is the stuff I want to add here when I was taking shower on Fer 5?)
 

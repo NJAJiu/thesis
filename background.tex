@@ -65,20 +65,20 @@ at some time we synchronized the system time to UTC or a reference clock, it
 will be inaccurate later. This fact make it necessary to synchronize a device
 frequently.
 
-When system clock is adjusted by NTP\null, only the time itself will be
-adjusted.  The frequency will not be adjusted. NTP uses \verb|adjtime()| to
-adjust system time by default. The benefit of using \verb|adjtime()| is that it
+When system clock is adjusted by NTP\null, both the time and the frequency
+will be adjusted. NTP uses \verb|ntp_adjtime()| or \verb|adjtime()| to adjust
+system time when the offset is small. The benefit of using them is that they
 will synchronize the system time step by step over a period of time by
-adjusting a small amount in one step and finally make it synchronized. In this
-case, any running program which is sensitive to time, such as a logging
-program, will only be slightly impacted. If we want to change system time back
-for some amount, it will not make later things ``happened'' earlier in the log.
-If we want to change system time forwardly, there will not be a gap in the time
-line, where nothing happened during that time.
+adjusting a small amount in one step and finally make it synchronized. In
+this case, any running program which is sensitive to time, such as a logging
+program, will only be slightly impacted. If we want to change system time
+back for some amount, it will not make later things ``happened'' earlier in
+the log. If we want to change system time forwardly, there will not be a gap
+in the time line, where nothing happened during that time.
 
-\section{Concepts}%
-\label{sec:concepts}
+% \section{Concepts}%
+% \label{sec:concepts}
 
-(Note: should this part be here or somewhere else or no need?)
+% (Note: should this part be here or somewhere else or no need?)
 
 

@@ -67,8 +67,10 @@ which means that every devices in the system need to synchronize its system
 time to the same reference clock. If the reference clock is in an internal
 device, they do not have to be synchronized to external devices. In some other
 cases, a device may need to be synchronized to a standard time. 
-UTC (Coordinated Universal Time) is one kind of standard time. 
-(Note: explain UTC here)
+UTC (Coordinated Universal Time) is one kind of standard time, it is similar 
+to Greenwich Mean Time but the later one is not a time standard. UTC is kept
+using atomic clocks, which can be considered as very accurate, and combined
+with the earth rotation. It is widely used for time synchronization purpose.
 
 An easy way of synchronizing a clock is to ask someone else for the time, and
 then adjusting the system clock manually. We always adjust the time of our
@@ -81,7 +83,7 @@ checks its time and replies to A\null. Then A can adjust its system time.
 But there are a lot of problems.  The core one is that when A receives
 the time, it can only know the time was when B checked its time. A cannot know
 how long it is from then to when A receives the message. To solve these
-problems, the network time protocol (NTP) is developed for devices to
+problems, the \emph{network time protocol} (NTP) is developed for devices to
 synchronize their system times over networks. 
 
 \section{Computers' Clocks}

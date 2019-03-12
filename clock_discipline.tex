@@ -99,7 +99,12 @@ Otherwise, the frequency offset $\Phi$ is directly calculated by:
     \Phi = \frac{\Theta}{\mu}
     \label{eq:frequency_offset}
 \end{equation}
-This is used to step frequency in Section~\ref{sec:clock_state_machine}.
+This is used to step frequency in Section~\ref{sec:clock_state_machine}. 
+
+However, since the calculations are based on the result of previous processes
+and calculations there are based on the assumption that the frequencies of client
+and servers are the same or close enough. This calculation and further changes
+about frequency will make it close to accurate one, but it need time.
 
 \input{figures/phase_frequency_prediction.tex}
 % fig:phase_frequency_prediction
