@@ -5,7 +5,7 @@
 \section{History and current situation}%
 \label{sec:history_and_current_situation}
 The basic idea of NTP was developed in the early 1980s. NTP version 0 was
-implemented in 1985, and it is documented in RFC-958~\cite{rfc958}. 
+implemented in 1985, and it is documented in RFC~958~\cite{rfc958}. 
 % But the actual implementation did a little bit more. 
 The NTP packet header and the calculations of offset and delay (as will be
 discussed later) from that NTP version are still being used today. At that
@@ -13,27 +13,27 @@ time, the nominal accuracy could be in the low tens of milliseconds on an
 Ethernet network and better than 100 milliseconds on paths spanning the
 Atlantic Ocean.
 
-NTP version 1 was documented in RFC-1059 one year later. It contains a
-specification of the protocol and algorithms.
+The NTP version 1 was documented in RFC~1059~\cite{rfc1059} one year later. It
+contains a specification of the protocol and algorithms.
 
-NTP version 2 specification is documented in RFC-1119~\cite{rfc1119} in 1989.
+The NTP version 2 specification is documented in RFC~1119~\cite{rfc1119} in 1989.
 This version
 includes new protocols for use in managing NTP servers and clients and a
 cryptographic authentication scheme.
 At about the same time, another time synchronization protocol was presented,
-which is Digital Time Synchronization Service (DTSS)~\cite{DTSS}.
+known as the Digital Time Synchronization Service (DTSS)~\cite{DTSS}.
 
-NTP version 3 specification appeared in 1992, following
-RFC-1305~\cite{rfc1305}. This version combined the good ideas from both NTP and
+The NTP version 3 specification appeared in 1992, following
+RFC~1305~\cite{rfc1305}. This version combined the good ideas from both NTP and
 DTSS\null.
 
-After that, Simple Network Time Protocol version 4 was documented in
-RFC-2030~\cite{rfc2030}
+After that, the Simple Network Time Protocol version 4 was documented in
+RFC~2030~\cite{rfc2030}
 in 1996. SNTP is used if users do not need the ultimate performance of NTP or
 it is not otherwise justified.
 
-The latest version of NTP follows RFC-5905~\cite{rfc5905}, which is NTP version
-4 and presented in 2010.
+The latest version of NTP (at the time of writing) follows
+RFC~5905~\cite{rfc5905}, which is NTP version 4; this was presented in 2010.
 % history.pdf
 
 \section{Reference clocks}%
@@ -43,9 +43,9 @@ time''~\cite{reference_clock}.
 % http://www.ntp.org/ntpfaq/NTP-s-algo.htm#Q-REFCLK
 The most important aspect of a reference clock is its accuracy; it must be
 synchronized to some time standard (usually UTC). If we want to synchronize a
-device to UTC, it requires reference clocks as sources which are themselves
+device to UTC, we require reference clocks as sources which are themselves
 synchronized to UTC\null. Some of them are
-available for many government dissemination services, includes:~\cite{redbook}
+available for many government dissemination services, includes~\cite{redbook}:
 \begin{itemize}
     \item Global Positioning System (GPS) and Long-Range navigation (LORAN-C)
         systems
@@ -65,24 +65,29 @@ a reference clock.
 \section{Adjusting system time}%
 \label{sec:adjusting_system_time}
 As mentioned in Section~\ref{sec:computers_clocks}, every computer should have
-a constant frequency to increase the number in a counter which is used to
-calculate system time. However, in practice, the frequency may be nether
-accurate nor consistent. In this case, even if at some time we synchronized the
-system time to UTC or a reference clock, it will be inaccurate later. This fact
-makes it necessary to synchronize a device frequently.
+a device outputting a signal with constant frequency to increase the number in
+a counter, which is used to calculate system time. However, in practice, the
+frequency may be neither accurate nor consistent. In this case, even if at some
+time we synchronized the system time to UTC or an alternative reference clock,
+it will be inaccurate later. This fact makes it necessary to synchronize a
+device frequently.
 
-When system clock is adjusted by NTP\null, both the time and the frequency
-will be adjusted. For Unix systems, NTP uses \verb|ntp_adjtime()| or
-\verb|adjtime()| system call to adjust system time when the offset is small.
-The benefit of using them is that they will synchronize the system time step by
-step over a period of time by adjusting a small amount in one step and finally
-make it synchronized. In this case, any running program which is sensitive to
+When the system clock is adjusted by NTP\null, both the time and the frequency
+will be adjusted. For Unix systems, NTP uses the \verb|ntp_adjtime()| or
+the \verb|adjtime()| system call to adjust the system time when the offset from
+the reference time is small.
+The benefit of using these system calls is that they will synchronize the system time step by
+step over a period of time, adjusting a small amount in one step, and finally
+synchronize the system clock. In this case, any running program which is sensitive to
 time, such as a logging program, will only be slightly impacted. If we want to
 change system time back for some amount, it will not make later things
-``happened'' earlier in the log. If we want to change system time forwardly,
+apparently happen earlier in the log. If we want to change system time forward,
 there will not be a gap in the time line, where nothing happened during that
-time. However, if the offset it big, NTP will also change the system time to
-another value.
+time. However, if the offset it from the reference time is big, NTP may make a
+large, abrupt change in the system time.
+
+In next chapter, we will have an overview of the architecture of the network
+operated by NTP and the internal processes of a NTP daemon program.
 
 % \section{Concepts}%
 % \label{sec:concepts}

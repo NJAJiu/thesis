@@ -25,10 +25,10 @@ because they are hungry, but it is the time to do it. The schedule may be
 different among people, but the requirement of knowing the time is the same.
 
 There are various ways to let people know the time: clocks and watches are
-commonly used. In old days, people used huge clock to let everyone who can see
-such a clock keep track of time by frequently looking at it. Even today, hand
+commonly used. In old days, people used huge clocks to let everyone who can see
+such a clock keep track of time by frequently looking at it. Even today, wrist
 watches are still popular, since they make it easy for people to know the
-current time, where the only requirement is to synchronize it periodically.
+current time, where the only requirement is to reset the time periodically.
 
 In modern life, computers are widely used. Most computers, including
 smartphones, have internal clocks to keep track of time. For computer programs, 
@@ -55,36 +55,38 @@ there either too early and have to wait for one hour or too late and the
 conference may be over by that time.
 
 In some other cases, a very high accuracy of system time is required. For
-example, consider a system which handles buying and selling orders of a stock
-market.  Generally, more than one device is accessing the system. Consequently,
-the system times among devices should be ``the same'' since we need to know the
-order of the orders at least. If the system is very busy and thousands of
-orders are created in one second, every device should have a system time
-accurate to one millisecond at least.
+example, consider a system which handles buying and selling transactions of a
+stock market.  Generally, more than one device is accessing the system.
+Consequently, the system times among devices should be ``the same'' since we
+need to know the order of the transactions at least. If the system is very busy
+and thousands of orders are created in one second, every device should have a
+system time accurate to one millisecond at least.
 
 As we can see in the previous example, only a ``local accuracy'' is required,
 which means that every device in the system needs to synchronize its system
-time to the same source. If the source is in an internal device, they do not
+time to the same source. If the source is in a local device, such as a local
+computer, they do not
 have to be synchronized to any external devices. In some other cases, a device
 may need to be synchronized to a standard time. 
-UTC (Coordinated Universal Time) is one kind of standard time, it is similar 
+Coordinated Universal Time (UTC) is one kind of standard time, it is similar 
 to Greenwich Mean Time but the latter one is not a standard one. UTC is kept
-using atomic clocks, which can be considered to be very accurate. It is widely
+using atomic clocks, which can be considered to be very accurate. UTC is widely
 used for time synchronization purposes.
 
 An easy way of synchronizing a clock is to ask someone else for the time, and
-then adjusting the system clock manually. We always adjust the time of our
+then adjust the system clock manually. We adjust the time of our
 watches like that. This level of accuracy is quite sufficient if we do not need
-our watches accurate to one second. 
+our watches accurate to one second or better. 
 
-Now we are going to design a method to synchronize computer system clocks. The
-first thought is to use the method described in the last paragraph. Assume
-computer A wants to synchronize to computer B, A can send a message to B then B
-checks its time and replies to A\null. Then A can adjust its system time.  
-But there are a lot of problems.  The core one is that when A receives
-the time, it can only know what time was when B checked its time. A cannot know
-how long it is from then to when A receives the message. To solve these
-problems, the \emph{Network Time Protocol} (NTP) has been developed for devices
+Suppose we are going to design a method to synchronize computer system clocks.
+The first thought might to use the method described in the last paragraph.
+Assume computer $C_1$ wants to synchronize to computer $C_2$, $C_1$ can
+send a message to $C_2$ then $C_2$ checks its time and replies to $C_1$. Then
+$C_1$ can adjust its system time.  However, there are a lot of problems.  The
+core one is that when $C_1$ receives the time, it can only know what time was
+when $C_2$ checked its time. $C_1$ cannot know how long it is from then to when
+$C_1$ receives the message. To solve these problems, the \emph{Network Time
+Protocol} (NTP) has been developed for devices
 to synchronize their system times over networks. 
 
 \section{Computers' Clocks}
@@ -94,11 +96,11 @@ These relate to hardware architecture and operating system design, but they
 have the same fundamental idea: increasing a counter at a ``constant''
 frequency, such as 1~GHz. Based on the frequency and the counter, the system
 time can be calculated when necessary. However, in practice, this frequency is
-not constant.  First of all, there may be some manufacturing error, which makes
-it slightly different from what it should be. Second, the frequency can be
-affected by temperature, humidity and so on. So the system clock can be very
-inaccurate if it has not been synchronized for quite a long time, and the
-offset is unpredictable.
+not exactly the design frequency.  First of all, there may be some
+manufacturing error, which makes it slightly different from what it should be.
+Second, the frequency can be affected by temperature, humidity and so on. So
+the system clock can be very inaccurate if it has not been synchronized for
+quite a long time, and the offset from the correct time is unpredictable.
 
 \section{Trend}
 \label{sec:trend}
@@ -107,14 +109,14 @@ performance, the quality of network connection and the synchronization protocol
 itself. 
 As we have faster internet connections, and more powerful CPUs, we have a
 better opportunity to more accurately set system clocks. As we have more
-accurate system clocks, we can do more time sensitive activities on internet.
-As we do more that kind of activities on internet or
+accurate system clocks, we can do more time sensitive activities via the internet.
+As we do more of that kind of activity over the internet, or
 other tasks which require highly precise time, we desire more accurate
 system clocks.  We always want to make system clocks as accurate as possible
 following the improvements of internet connections and CPUs. 
 
-In real life, atomic clocks are considered the most accurate. In 2015 the most
-accurate atomic clock is accurate to $2.1\times 10^{-18}$
+Currently, atomic clocks are considered the most accurate. As of 2015, the most
+accurate atomic clock was accurate to $2.1\times 10^{-18}$
 second~\cite{atomic_clock}.
 % https://www.nature.com/articles/ncomms7896#introduction
 This accuracy is far beyond the timekeeping ability of current general-purpose
@@ -127,8 +129,8 @@ significantly improve hardware or network capability.
 \label{sec:contribution}
 The main purpose of this thesis is to investigate the algorithms in NTP\null.
 While the official documents cover most details about most technical issues,
-understanding it is in some respect too complex and requires a strong background
-in mathematics and engineering. This thesis is going to explain the algorithms
+understanding it is in some respect complex and requires a strong background
+in mathematics and engineering. This thesis explains the algorithms
 and make some comments to help people have a better understanding of NTP and it
-will be helpful for people who are only interested in the NTP algorithms.
+will be helpful for people who are interested in the NTP algorithms.
 
