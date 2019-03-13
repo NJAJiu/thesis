@@ -28,7 +28,7 @@ them with more detail later.
         more detail in Section~\ref{sec:peer_processes}.
         % from website https://www.eecis.udel.edu/~mills/ntp/html/stats.html
     \item Jitter $\varphi$\\
-        The root-mean-square (RMS) of a series of time offsets. It indicates 
+        The root-mean-square (RMS) of a series of time offsets; this indicates 
         how stable the offset is.
 \end{enumerate}
 
@@ -38,17 +38,17 @@ Figure~\ref{fig:peer_poll_processes} shows the basic architecture of peer/poll
 processes. The communication between client and server uses on-wire protocol,
 which can provide sample statistics ($\theta_0, \delta_0, t_0$ in the figure).
 The recent eight samples are stored in a shift register, with one more sample
-statistic added ($\varepsilon$).  Then peer process applies clock filter
+statistic added ($\varepsilon$). Then peer process applies clock filter
 algorithm, which generates peer statistics ($\theta, \delta, \varepsilon,
 \varphi$ in the figure), and passes them to system process.
 
 \input{figures/peer_poll_figure.tex}
 % fig:peer_poll_processes
 
-The purpose of peer processes is to communicate with servers and to keep
-statistics of the communications which can be used to determine how reliable
-the servers are. Poll processes are used to manage the
-communications to get sufficient data without making the servers too busy.
+The purpose of peer processes is to communicate with servers and to calculate
+and keep statistics of the communications which can be used to determine how
+reliable the servers are. Poll processes are used to manage the communications
+to get sufficient data without making the servers too busy.
 
 \section{On wire protocol}%
 \label{sec:on_wire_protocol}
@@ -175,8 +175,8 @@ scope of this thesis.
 \subsection{Non-reliable protocol}%
 \label{sub:non_reliable_protocol}
 As mentioned in Section~\ref{sub:timestamps_in_ntp_packet}, the NTP packet is a
-UDP datagram. This make on-wire protocol not reliable, which means that there
-is no guarantee about the delivery of packets. Reliable delivery actually
+UDP datagram. This makes the on-wire protocol not reliable, which means that
+there is no guarantee about the delivery of packets. Reliable delivery actually
 decreases the reliability of NTP packets. Assume we are implementing on-wire
 protocol to make it reliable by using similar technique like TCP, a lost packet
 will be sent again. However, an identical packet is not valid since the
@@ -208,8 +208,8 @@ Where
         $T_5$ and $T_2$ are the two timestamps in Figure~\ref{fig:on_wire1}. In
         other word, $T_5$ is \emph{dst} and $T_2$ is \emph{org}.
 \end{itemize}
-After storing the sample statistics into the shift register, the peer process
-increases dispersion in a constant rate $\phi$. 
+After storing the sample statistics into the shift register, the dispersion
+is increased in a constant rate $\phi$. 
 
 The system precision is automatically determined by NTP, it represents the ``
 the smallest possible increase of time that can be experienced by a
@@ -268,8 +268,9 @@ will discuss this more in Section~\ref{sub:huff_n_puff_filter}.
 
 Based on the result we got from Figure~\ref{fig:clock_filter}, clock filter
 algorithm first sorts the samples by their delay. If the first sample is later
-than the last sample we selected, it is selected, otherwise nothing more happen.
-This mechanism guarantees that one sample will only be used at most once.
+than the last sample we selected, it is selected; otherwise nothing more
+happens. This mechanism guarantees that one sample will only be used at most
+once.
 
 After the selection, the offset $\theta$ and delay $\delta$ of the sample
 become peer statistics with the same names. The sorted samples are indexed from
@@ -289,8 +290,8 @@ where $n$ is the number of valid samples in the shift register ($n > 1$).
 The peer jitter is the root-mean-square (RMS) of differences between sample
 offsets and the sample offset of selected sample, ``it represents the nominal
 error in estimating the offset''~\cite{rfc5905}. A larger jitter indicates
-that the offset varies more, which we can consider that there may be some
-problem with the server and/or the connection, since the offset should not
+that the offset varies more, in that case, we can consider that there may be
+some problem with the server and/or the connection, since the offset should not
 change much if we did not adjust client's system clock by a large amount.
 
 \subsection{Huff-n'-puff filter}%
@@ -366,14 +367,14 @@ we can do the following stuff:
 \input{figures/huff_n_puff2}
 % fig:huff_n_puff2
 
-Note that this adjustment is actually move the sample points close to the
-horizontal line which go through the point $(\delta_0, \theta_0)$, if the samples
-are near the upper limb line, as Figure~\ref{fig:huff_n_puff2} shows. It is
-also said that it is less effective and will lead to significant errors if a
-large amount of samples are in the area between the limb
+Note that this adjustment is actually moving the sample points close to the
+horizontal line which goes through the point $(\delta_0, \theta_0)$, if the
+samples are near the upper limb line, as Figure~\ref{fig:huff_n_puff2} shows.
+It is also said that it is less effective and will lead to significant errors
+when a large amount of samples are in the area between the limb
 lines.~\cite{huff_n_puff} If the practice situation is like
-Figure~\ref{fig:huff_n_puff2}, the adjustment works fine, since it can
-avoid the variation of offset which can be considered as error.
+Figure~\ref{fig:huff_n_puff2}, the adjustment works fine, since it can avoid
+the variation of offset which can be considered as error.
 
 %\subsection{Reachability detection}%
 %\label{sub:reachability_detection}
@@ -383,22 +384,23 @@ avoid the variation of offset which can be considered as error.
 \section{Poll processes}%
 \label{sec:poll_processes}
 As mentioned in Section~\ref{sec:peer_poll_overview}, poll processes are
-designed to control the interval of communications in order to get significant
+designed to control the interval of communications in order to get sufficient
 data without making servers too busy. 
 
-The key part of poll process it the time constant $T_c$ and its relative time
+The key part of poll process it the time constant $T_c$ and its relative 
 exponent $\uptau$ where $T_c = 2 ^ {\uptau}$. A client send poll request to
 each server with a \emph{poll interval} of $T_c$ seconds. $\uptau$ is a whole
 number and is called the \emph{poll exponent}, which ranges from 4 to
 17~\cite{rfc5905}.
 
-$T_c$ and $\uptau$ are maintained by the clock discipline process, will discuss
-it later in Chapter~\ref{cha:clock_discipline_process}.
+$T_c$ and $\uptau$ are maintained by the clock discipline process. We will
+discuss it later in Chapter~\ref{cha:clock_discipline_process}.
 
 There are two options: \verb|BURST| and \verb|IBURST|. With the \verb|BURST|
 option, instead of sending one request at each poll interval, the poll
-process sends 8 packets. The interval between each packet is 2s. With the
+process sends 8 packets. The intervals between packets are 2s. With the
 \verb|IBURST| option, when a server is unreachable, it sends 8 packets at 2-s
 intervals. The \verb|IBURST| option is used to reduce the synchronization
 time at initial starts up while the \verb|BURST| option can reduce noise at
 long poll intervals~\cite{poll_process}.
+

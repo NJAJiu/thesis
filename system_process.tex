@@ -21,17 +21,17 @@ To understand the system process, we first introduce some concepts.
     \item Truechimer and falseticker\\
         A truechimer is a clock that maintains timekeeping accuracy to a
         previously published (and trusted) standard, while a falseticker is a
-        clock that does not.
+        clock that does not~\cite{redbook}.
     \item Root distance $\lambda$\\
         Root distance is a very important statistic used in system process, it
         ``represents the maximum error of the estimate due to all
-        causes.''~\cite{performance_metrics} The root distance is calculated as
-        the \emph{root delay} from the primary source of time plus the
-        \emph{root dispersion} of that source. Here the source is the reference
-        clock, the root delay and the root dispersion are similar with the
-        statistics delay and dispersion we discussed in
-        Chapter~\ref{cha:peer/poll_processes}, but relate to the source. We
-        will discuss relative calculations in
+        causes.''~\cite{performance_metrics} The root distance of a peer is
+        calculated as the \emph{root delay} from the primary source of time
+        plus the \emph{root dispersion} of that source. Here the source is the
+        reference clock which the peer is synchronized to, the root delay and
+        the root dispersion are similar with the statistics delay and
+        dispersion we discussed in Chapter~\ref{cha:peer/poll_processes}, but
+        relate to the source. We will discuss relative calculations in
         Section~\ref{sec:selection_algorithm}.
 \end{enumerate}
 
@@ -40,8 +40,8 @@ To understand the system process, we first introduce some concepts.
 
 Figure~\ref{fig:system_process} shows the basic structure of system process.
 The selection algorithm takes peer statistics calculated by peer processes,
-then eliminates falsetickers. The clustering algorithm select the best
-truechimers then the combining algorithm calculates system statistic and pass
+then eliminates falsetickers. The clustering algorithm selects the best
+truechimers then the combining algorithm calculates system statistics and pass
 them to the clock discipline algorithm.
 
 \input{figures/system_process}
@@ -82,7 +82,7 @@ Then we have root distance $\lambda$ which is calculated by:
 \end{align}
 where 
 \begin{itemize}
-    \item $\mindisp$ is the minimum increment of dispersion.  It is used to
+    \item $\mindisp$ is the minimum increment of dispersion. It is used to
         avoid timing loops in NTP subnets with very fast processors and
         networks.~\cite{rfc5905} Its default value has three versions among
         official documents of NTP: 5 ms,~\cite{rfc5905} 10 ms,~\cite{rfc5905}
@@ -91,7 +91,7 @@ where
         header.
     \item $\varepsilon_p$ is the root dispersion of the peer, it is in the NTP
         packet header.
-    \item $\delta$, $\varepsilon$ and $\varphi$  are the peer delay, peer
+    \item $\delta$, $\varepsilon$ and $\varphi$ are the peer delay, peer
         dispersion and peer jitter we mentioned in
         Chapter~\ref{cha:peer/poll_processes}. Note that the peer dispersion
         $\varepsilon$ should be updated every time we access to it since it
@@ -144,7 +144,7 @@ two situations:
     \item The correctness intervals of some falsetickers have intersection with
         the correctness intervals of all truechimers.\\ This is a bad situation
         that we cannot determine the falsetickers and the \emph{intersection
-        interval} defined below will not contains the true offset.  However, we
+        interval} defined below may not contains the true offset. However, we
         cannot do anything in this situation.
 \end{enumerate}
 
@@ -154,9 +154,9 @@ which is subset of most correctness intervals. Note that the definition is
 not the official one since it is considered to be confused.
 Figure~\ref{fig:intersection_interval} shows an example of intersection
 interval. There are four peers, which are also called candidates, A, B, C and
-D. Their correctness intervals are the bars in the figure. As we can see,
+D\null. Their correctness intervals are the bars in the figure. As we can see,
 there is no common intersection for all of them, but there is one for A, B
-and C. In this case, candidate D is considered as a falseticker and the
+and C\null. In this case, peer D is considered as a falseticker and the
 intersection interval is indicated by the two dash lines which are the lower
 and upper boundary of it.
 
@@ -252,11 +252,13 @@ Note that there are some details that we need to discuss.
         algorithm is called when there is no candidates.
     \item 
         The selection sort algorithm is used here to sort the list
-        $endpoints$. It is not efficiency in principle, but it is acceptable
-        here since there should not be hundreds of thousands of tuples to be
-        sorted. In practice, each peer is manually assigned by the user of
-        NTP, so even the number of tuples should be as twice as the number of
-        peers, it will not be several hundreds. (Maybe no more than twenty.)
+        $endpoints$~\cite{source_code}. It is not efficiency in principle, but
+        it is acceptable here since there should not be hundreds of thousands
+        of tuples to be sorted. In practice, each peer is manually assigned by
+        the user of NTP, so even the number of tuples should be as twice as the
+        number of peers, it will not be several hundreds. (Maybe no more than
+        twenty.) It is also interesting to use selection sort in selection
+        algorithm.
     \item
         The variable $allow$ indicates the number of falsetickers. From the
         algorithm, we can see that if we cannot get an intersection interval
@@ -264,9 +266,9 @@ Note that there are some details that we need to discuss.
         the algorithm gives up and no truechimers can be
         found.~\cite{clock_selection}
     \item
-        The algorithm first try to find an intersection of all correctness
+        The algorithm first tries to find an intersection of all correctness
         intervals. If it fails, it increase $allow$ by one, then try to find
-        an intersection interval for one less correctness intervals. Then it
+        an intersection interval of one less correctness intervals. Then it
         repeats the step until an intersection interval is found or $allow$
         is to large.
 \end{enumerate}
@@ -275,7 +277,7 @@ clustering algorithm, otherwise nothing further happens.  The system clock of
 the client will not be synchronized.
 
 Note that the algorithm ``implementation'' in RFC5905 page 91 is completely
-wrong.
+wrong~\cite{rfc5905}.
 
 % \subsection{Midpoints of correctness intervals}
 % \label{midpoints_of_correctness_intervals}
@@ -283,7 +285,7 @@ wrong.
 
 \section{Clustering algorithm}%
 \label{sec:clustering_algorithm}
-For truechimers, we can  calculate the \emph{selection jitter} statistic for
+For truechimers, we can calculate the \emph{selection jitter} statistic for
 each of them, where it is the root-mean-square (RMS) of offset differences
 between the peer and all others. The selection jitter of peer $i$ is denoted by
 $\varphi_{s,i}$ and the calculation is:
@@ -299,11 +301,10 @@ The clustering algorithm does the following things:
     \item Calculates selection jitters $\varphi_{s, i}$ for each peer $i$.
     \item Do the terminating tests, which contains two tests:
         \begin{enumerate}
-            \item If $m < \verb|MINCLOCK|$, 
-                stops the algorithm, where $m$ is
+            \item If $m < \verb|MINCLOCK|$, stops the algorithm, where $m$ is
                 the number of peers left and \verb|MINCLOCK| is a parameter
                 indicates the minimum number of survivors in this algorithm
-                whose default value is 3.~\cite{rfc5905}
+                whose default value is 3~\cite{rfc5905}.
             \item If $\max(\varphi_{s,i}) < \min(\varphi_i)$, stops the
                 algorithm, where $\varphi_i$ is the jitter of peer $i$.
         \end{enumerate}
@@ -321,11 +322,14 @@ least one truechimer's offset which is relatively far from others. Otherwise,
 all of them are close enough.
 
 After applying the clustering algorithm, there are some peers left, which are
-called survivors. We sort
-them by their root distances $\lambda$. The current maximum selection jitter
-is saved as the system selection jitter $\varphi_s$. Note that official documents
-of NTP mentioned that we should sort the survivors before applying clustering
-algorithm, which is slightly strange.
+called survivors. We sort them by a merit factor $\lambda_p = stratum_p \times
+\verb|MAXDIST| + \lambda$, from low to high, where $stratum_p$ is the stratum
+number of the peer. The selection jitter of first peer of the sorted survivors
+list is saved as the system selection jitter $\varphi_s$. Note that official
+documents of NTP mentioned that we should sort the survivors before applying
+clustering algorithm, which is slightly strange. In~\cite{rfc5905}, it is said
+that the system selection jitter should be the maximum selection jitter of all
+survivors, which is wrong based on~\cite{redbook} and~\cite{source_code}.
 
 \section{Combining algorithm}%
 \label{sec:combine_algorithm}
@@ -355,15 +359,15 @@ About the calculations:
 \begin{enumerate}
     \item The system offset is the weighted average of peer offsets. The
         weights are the reciprocals of root distances. This means that peers
-        have less root distance contributes more to the system offset. As
+        have less root distance contribute more to the system offset. As
         mentioned in Section~\ref{sec:system_concepts}, the root distance
         represents the maximum error due to all causes. We prefer peers with
         low errors as well as it shows in the calculation.
     \item The system peer jitter is the root-weighted-average-square of peer
         jitters, where the weights are as the same as the weights in the
         calculation of system offset.
-    \item The system jitter is the geometric average of selection jitter and
-        system peer jitter.
+    \item The system jitter is the geometric average of system selection jitter
+        and system peer jitter.
 \end{enumerate}
 
 \section{System peer selection}%
@@ -375,8 +379,8 @@ the combine algorithm is not used. The system jitter and offset are the
 prefer peer's jitter and offset respectively. Otherwise, the first peer in
 the sorted list of survivors becomes the system peer. 
 
-There are some system variables comes from system peer. The important ones
-includes the stratum number, which is the stratum of system peer plus one.
+There are some system variables come from system peer. The important ones
+include the stratum number, which is the stratum of system peer plus one.
 The system root delay and root dispersion are calculated using
-Ejsdfquation~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
+Equation~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
 
