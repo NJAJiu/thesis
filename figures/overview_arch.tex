@@ -29,7 +29,7 @@
     \node[squarednode]  (p1)  [right=of s1] {Peer/poll 1};
     \node[squarednode]  (p2)  [right=of s2] {Peer/poll 2};
     \node[squarednode]  (p3)  [right=of s3] {Peer/poll 3};
-    \node[align=center](lab2)[below=of p3] {Peer/Poll\\ Processes};
+    \node[align=center](lab2)[below=of p3] {Peer/Poll\\ processes};
 
     \draw[border] ($(p1.north west) + (-0.4, 0.2)$) -| ($(lab2.south east) +
     (0.8, -0.2)$);
@@ -39,8 +39,8 @@
     % system process
     \node[squarednode]  (sa1) [right=of p2]
     {Selection\\ and\\ clustering\\ algorithms};
-    \node[squarednode] (sa2) [right=of sa1] {Combine\\ Algorithms};
-    \node[align=center](lab3)[above=5mm of sa2] {System\\ Process};
+    \node[squarednode] (sa2) [right=of sa1] {Combine\\ algorithms};
+    \node[align=center](lab3)[above=5mm of sa2] {System\\ process};
 
     \draw[border] ($(lab3.north east) + (1.0, 0.2)$) -| ($(sa1.south west) +
     (-0.4, -0.8)$);
@@ -49,7 +49,7 @@
 
     % clock discipline process
     \node[squarednode] (lf) [right=of sa2] {Loop filter};
-    \node[align=center](lab4)[above=5mm of lf] {Clock Discipline\\ Process};
+    \node[align=center](lab4)[above=5mm of lf] {Clock discipline\\ process};
     \draw[border] ($(lab4.north east) + (0.3, 0.2)$) -| ($(lf.south west) +
     (-0.4, -0.8)$);
     \draw[border] ($(lab4.north east) + (0.3, 0.2)$) |- ($(lf.south west) +
@@ -57,7 +57,7 @@
 
     % clock adjust process
     \node[circlenode] (vfo) [below=25mm of lf] {VFO};
-    \node[align=center](lab5)[below=5mm of vfo] {Clock Adjust\\ Process};
+    \node[align=center](lab5)[below=5mm of vfo] {Clock adjust\\ process};
     \draw[border] ($(vfo.north east) + (1.0, 0.5)$) |- ($(lab5.south west) +
     (-0.2, -0.2)$);
     \draw[border] ($(vfo.north east) + (1.0, 0.5)$) -| ($(lab5.south west) +

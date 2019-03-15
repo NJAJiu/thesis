@@ -13,17 +13,17 @@
     \node[squarednode]  (s)                {Server};
 
     % on-wire protocol
-    \node[align=center] (onwire) at ($(s.east) + (2.5, 2)$) {On-wire Protocol};
+    \node[align=center] (onwire) at ($(s.east) + (2.5, 2)$) {On-wire protocol};
     \draw[border] ($(onwire.north west) + (-0.2, 0.2)$) -|
             ($(onwire.north east) + (0.2, -5)$) -|
             ($(onwire.north west) + (-0.2, 0.2)$);
     % poll process
-    \node[squarednode] (poll) at ($(onwire) + (0, -6)$) {Poll Process};
+    \node[squarednode] (poll) at ($(onwire) + (0, -6)$) {Poll process};
     \draw[-latex, thick] (poll) |- ($(s.south) + (0, -0.5)$) -- (s);
 
     % shift registers
     \node[squarednode] (sr) at ($(onwire) + (4.5,-2)$) 
-            {Shift Registers\\
+            {Shift registers\\
             $(\theta_1, \delta_1, \varepsilon_1, t_1)$\\
             $(\theta_2, \delta_2, \varepsilon_2, t_2)$\\
             $(\theta_3, \delta_3, \varepsilon_3, t_3)$\\
@@ -36,11 +36,11 @@
     \draw[-latex, thick] (s) -- (sr) node[midway, above] 
             {$(\theta_0, \delta_0, t_0)$};
     % clock filter algorithm
-    \node[squarednode] (cf) [right=of sr] {Clock Filter\\ algorithm};
+    \node[squarednode] (cf) [right=of sr] {Clock filter\\ algorithm};
     \draw[-latex, thick] (sr) -- (cf);
 
     % peer process
-    \node[align=center] (peer) [below=2mm of sr.south east] {Peer Process};
+    \node[align=center] (peer) [below=2mm of sr.south east] {Peer process};
     \draw[border] ($(sr.north west) + (-0.5, 0.2)$) -- 
             ($(sr.south west) + (-0.5, -1.2)$)
             -|
@@ -58,7 +58,7 @@
 
 \end{tikzpicture}
 \end{center}
-\caption{Peer/Poll processes}
+\caption{Peer/Poll process}
 \label{fig:peer_poll_processes}
 \end{figure}
 
