@@ -34,15 +34,15 @@ them with more detail later.
 
 \section{Overview}%
 \label{sec:peer_poll_overview}
-The NTP on-wire protocol is used to send NTP packet between clients and servers.
-Figure~\ref{fig:peer_poll_processes} shows the basic architecture of the
-peer/poll processes. The communication between the client and one server uses
-the NTP on-wire protocol (explained in the next section), which can provide
-sample statistics ($\theta_0, \delta_0, t_0$ in the figure).  The most recent
-eight samples are stored in a shift register, with one more sample statistic
-($\varepsilon_i$) added. Then the peer process applies the clock filter
-algorithm, which generates peer statistics ($\theta, \delta, \varepsilon,
-\varphi$ in the figure), and passes them to the system process.
+The NTP on-wire protocol is used to send NTP packets between clients and
+servers.  Figure~\ref{fig:peer_poll_processes} shows the basic architecture of
+one peer/poll process. The communication between the client and one server
+uses the NTP on-wire protocol (explained in the next section), which can
+provide sample statistics ($\theta_0$, $\delta_0$, $t_0$ in the figure).  The most
+recent eight samples are stored in a shift register, with one more sample
+statistic ($\varepsilon_i$) added. Then the peer process applies the clock
+filter algorithm, which generates peer statistics ($\theta$, $\delta$,
+$\varepsilon$, $\varphi$ in the figure), and passes them to the system process.
 
 \input{figures/peer_poll_figure.tex}
 % fig:peer_poll_processes
@@ -58,7 +58,7 @@ making the servers too busy.
 In an NTP subnet, a client can send a request to a server and the server sends
 back a response. This whole round of communication can generate one sample. For
 every sample, the client wants to know the difference between the server's
-system clock and its own clock (i.e, offset).  However it may take a while for
+system clock and its own clock (i.e., offset).  However it may take a while for
 the server to generate and send the response. This delay is not predictable, as
 well as the network delay between the two devices. In an NTP subnet, clients
 and servers communicate using an on-wire protocol. It provides a smart way to
@@ -193,8 +193,8 @@ timestamp which indicates the time when the packet is sent is incorrect.
 
 \section{Peer processes}%
 \label{sec:peer_processes}
-% As shown in Figure~\ref{}
-For each server, the on-wire protocol provides sample statistics $\theta,
+As shown in Figure~\ref{fig:peer_poll_processes}, 
+for each server, the on-wire protocol provides sample statistics $\theta,
 \delta$ and $t$ and passes them to the peer process. Then the peer process
 maintains them and the clock filter algorithm calculates peer statistics based
 on them.
