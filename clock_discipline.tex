@@ -275,7 +275,7 @@ When the daemon starts up, the poll interval is not adjusted in the first
 \verb|STEPOUT| seconds, where \verb|STEPOUT| is the stepout threshold.
 To maintain the poll interval, we need a statistic: \emph{clock jitter} $\psi$.
 It is initialized to the precision of the system clock when the daemon starts
-up and will not change after the first \verb|STEPOUT| seconds. After that, when
+up and will not change in the first \verb|STEPOUT| seconds. After that, when
 an update of the system offset $\Theta$ occurs, the jitter is updated. If
 $\Theta > $ \verb|STEP|, the clock jitter is reset to its initial value;
 otherwise the clock jitter is updated as follows:
@@ -288,9 +288,9 @@ where $\psi_{old}$ is the old clock jitter and $\Theta_{old}$ is the last
 updated system offset. 
 
 NTP uses a counter called the \emph{jiggle counter}, which is initialized to
-zero. When an update of system offset occurs, if the system offset exceeds the step
-interval, it is also set to zero. If the system offset does not exceed the
-step interval, NTP operates as follows:
+zero. When an update of the system offset occurs, if the system offset exceeds
+the step interval, it is also set to zero. If the system offset does not exceed
+the step interval, NTP operates as follows:
 if $\Theta < 4 \times \psi$, the counter increases by $\uptau$; 
 otherwise the counter decreases by $2\uptau$.
 When the jiggle counter is larger than 30, we increase $\uptau$ by 1; when it

@@ -161,10 +161,10 @@ the true offset. The \emph{intersection interval} is the largest interval
 which is a subset of the largest number of correctness intervals. Note that this
 definition is slightly modified from the official one, which is ``the smallest
 interval containing points from the largest number of correctness
-intervals''\cite{clock_selection}. The official definition is confused since the
+intervals''~\cite{clock_selection}. The official definition is confused since the
 ``smallest'' interval may be a interval with just one point in the interval of
 our new definition.
-Figure~\ref{fig:intersection_interval}\cite{clock_selection} shows an example
+Figure~\ref{fig:intersection_interval}~\cite{clock_selection} shows an example
 of an intersection interval. There are four peers, which are also called
 candidates A, B, C and D\null. Their correctness intervals are the bars in the
 figure. As we can see, there is no common intersection for all of them, but
@@ -353,7 +353,7 @@ called survivors. We sort them by a merit factor $\lambda_p = stratum_p \times
 \verb|MAXDIST| + \lambda$, from low to high, where $stratum_p$ is the stratum
 number of the peer. The selection jitter of the first peer of the sorted
 survivors list is saved as the system selection jitter $\varphi_s$. Note that
-the NTP official documents (~\cite{redbook} and~\cite{rfc5905}) mention that we
+the NTP official documents (\cite{redbook} and~\cite{rfc5905}) mention that we
 should sort the survivors before applying the clustering algorithm, which is
 slightly strange. In~\cite{rfc5905}, it is said that the system selection
 jitter should be the maximum selection jitter of all survivors, which is wrong

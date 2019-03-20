@@ -135,7 +135,7 @@ datagram~\cite{rfc5905}. There are four timestamps in the NTP packet header:
         timestamp is in the header of an NTP packet from a server, this
         timestamp means when the server's system clock was last set or
         corrected. Note that this timestamp is useless in the header of an NTP
-        packet which is send from a client to a server. 
+        packet which is sent from a client to a server. 
     \item Origin Timestamp (\emph{org})\\
         The time at the client when the request packet departs.
     \item Receive Timestamp (\emph{rec})\\
@@ -254,7 +254,7 @@ register are initialized to the dummy tuple: $\theta = 0$, $\delta =
 \verb|MAXDISP|$, $\varepsilon = \verb|MAXDISP|$ and $t = 0$, where $\verb|MAXDISP|
 = 16$ is the maximum dispersion~\cite{rfc5905}.
 
-There is a 8-bit shift register called the ``reach register'''''' which is
+There is a 8-bit shift register called the ``reach register'' which is
 shared by the peer
 and poll process and used to determine whether the server is reachable and the
 data is fresh. It is maintained by the poll process, which we will discuss in
