@@ -210,7 +210,7 @@ $$ \varepsilon = \rho_r + \rho_s + \phi (T_5 - T_2) $$
 where 
 \begin{itemize}
     \item 
-        $\rho_r$ is the root precision in NTP packet. 
+        $\rho_r$ is the root precision in NTP packet header. 
     \item 
         $\rho_s$ is the system
         precision which we discuss below.
@@ -318,11 +318,12 @@ limits of sample variation''~\cite{clock_filter}.
 The variation of offset is caused by the asymmetric delay, and it is actually
 an error.
 
-Figure~\ref{fig:huff_n_puff1} shows the relationship between delay and offset
-error.  Figure~\ref{subfig:best_case} shows the best case, where the delays are
-symmetric. In this case, the middle points which are indicated by the ends of
-the dashed line (the other two figures are the same) are at the same time. As
-we mentioned in Section~\ref{sub:statistics_calculation}, the calculation in
+Figure~\ref{fig:huff_n_puff1} shows the relationship between
+delay and offset error.  Figure~\ref{subfig:best_case} shows the best case,
+where the delays are symmetric. In this case, the middle points which are
+indicated by the ends of the dashed line (the other two figures are the same)
+are at the same time. As we mentioned in
+Section~\ref{sub:statistics_calculation}, the calculation in
 Equation~\ref{eq:offset_def} is correct. 
 
 \input{figures/huff_n_puff1}
@@ -351,7 +352,7 @@ Figure~\ref{fig:clock_filter} shows. It is also mentioned that the errors due
 to asymmetric delay are almost unable to be corrected~\cite{redbook}. However,
 huff-n'-puff filter is used to attenuate these errors.
 
-Figure~\ref{fig:huff_n_puff2} shows a scattergram like
+Figure~\ref{fig:huff_n_puff2}~\cite{huff_n_puff} shows a scattergram like
 Figure~\ref{fig:huff_n_puff1}, but the network delay is much more asymmetric.
 From the figure, we find that the samples are close to the upper limb line,
 which indicates that the offset error is positive. This means that the upload

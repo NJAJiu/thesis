@@ -26,10 +26,10 @@ To understand the system process, we first introduce some definitions.
         \emph{Root distance} is a very important statistic used in system
         process, it ``represents the maximum error of the estimate due to all
         causes''~\cite{performance_metrics}. The root distance of a peer is
-        calculated as the \emph{root delay} from the primary source of time
-        plus the \emph{root dispersion} of that source. Here the source is the
-        reference clock which the peer is synchronized to, the root delay is
-        the total round-trip delay to the reference clock and the root
+        calculated as the \emph{root delay} from the peer's primary source of
+        time plus the \emph{root dispersion} of that source. Here the source is
+        the reference clock which the peer is synchronized to, the root delay
+        is the total round-trip delay to the reference clock and the root
         dispersion is the total dispersion to the reference clock. The root
         delay and the root dispersion are similar with the statistics delay and
         dispersion we discussed in Chapter~\ref{cha:peer/poll_processes}, but
@@ -83,16 +83,6 @@ where
         and 1 ms~\cite{performance_metrics}.
     \item $\delta_p$ is the root delay of the peer, it is in the NTP packet
         header.
-\end{itemize}
-Then we have the root distance $\lambda$ which is calculated as follows:
-\begin{align}
-    \lambda & = \frac{\Delta}{2} + E\\
-    & =\frac{\max(\mindisp\, \delta_p + \delta)}{2} 
-    + \varepsilon_p + \varepsilon + \varphi
-    \label{eq:root_distance}
-\end{align}
-where 
-\begin{itemize}
     \item $\varepsilon_p$ is the root dispersion of the peer, it is in the NTP
         packet header.
     \item $\delta$, $\varepsilon$ and $\varphi$ are the peer delay, peer
@@ -101,6 +91,16 @@ where
         $\varepsilon$ should be updated every time we access it since it
         increases in a constant speed $\phi = 15 ppm = 15 \mu s/s$.
 \end{itemize}
+Then we have the root distance $\lambda$ which is calculated as follows:
+\begin{align}
+    \lambda & = \frac{\Delta}{2} + E\\
+    & =\frac{\max(\mindisp\, \delta_p + \delta)}{2} 
+    + \varepsilon_p + \varepsilon + \varphi
+    \label{eq:root_distance}
+\end{align}
+Equation~\ref{eq:root_distance} shows the two parts of root distance, where
+half of root delay is the error cased by asymmetric network delays and the
+root dispersion is the error caused by precisions of servers and client.
 
 \subsection{Pre-selection checking}%
 \label{sub:pre_selection_checking}
@@ -131,8 +131,9 @@ algorithm.
 % correctness interval
 For each peer, given the offset $\theta_i$ and the root distance $\lambda_i$,
 we define a \emph{correctness interval} of that peer: $[\theta_i - \lambda_i,
-\theta_i + \lambda_i]$. By the definition of offset and root distance, if a
-peer is a truechimer, we know that the true offset $\theta$ should be in the
+\theta_i + \lambda_i]$. The correctness interval is called \emph{confidence
+interval} in~\cite{redbook}. By the definition of offset and root distance, if
+a peer is a truechimer, we know that the true offset $\theta$ should be in the
 interval, where the true offset is the offset of the reference clock relative
 to the client.
 
@@ -158,7 +159,11 @@ two situations:
 We now define the \emph{intersection interval}, which is considered to contain
 the true offset. The \emph{intersection interval} is the largest interval
 which is subset of the largest number correctness intervals. Note that this
-definition is not the official one since it is considered to be confused.
+definition is slightly modified from the official one, which is ``the smallest
+interval containing points from the largest number of correctness
+interval''\cite{clock_selection}. The official definition is confused since the
+``smallest'' interval may be a interval with just one point in the interval of
+our new definition.
 Figure~\ref{fig:intersection_interval} shows an example of an intersection
 interval. There are four peers, which are also called candidates A, B, C and
 D\null. Their correctness intervals are the bars in the figure. As we can see,
@@ -170,21 +175,29 @@ and upper boundaries of the intersection interval.
 \input{figures/intersection_interval.tex}
 % fig:intersection_interval
 
+There is another problem with intersection interval. The offset of peers are
+the midpoints of correctness intervals. It is said that the intersection
+interval should contains all midpoints of correctness intervals of
+truchimers~\cite{redbook}. But we did not define the intersection interval in
+this way because in the source code of the NTP~\cite{source_code}, the
+intersection interval is determined without considering the midpoints of
+correctness intervals.
+
 \subsection{Selection algorithm}%
 \label{sub:selection_algorithm}
-The selection algorithms is used to cleave truechimers from falsetickers. It
+The selection algorithm is used to cleave truechimers from falsetickers. It
 does this by calculating the intersection interval given correctness intervals
 from all candidates, the algorithm ``was devised by Keith Marzullo in his
 doctoral dissertation.  It was first implemented in the Digital Time
 Synchronization Service (DTSS) for the VMS operating system for the
 VAX\null''~\cite{clock_selection}.
 
-Algorithm~\ref{alg:intersection_interval} shows how to calculate the
-intersection interval.  In the algorithm, $endpoints$ is a list of tuples,
-where each tuple represents an endpoint of a correctness interval. Each tuple
-is comprised of the id of the peer, an integer $type$ to indicate whether it is
-the high ($1$) or low ($-1$) endpoint of the correctness interval, and the
-$value$ of the endpoint. It is initially empty.
+Algorithm~\ref{alg:intersection_interval}~\cite{source_code} shows how to
+calculate the intersection interval.  In the algorithm, $endpoints$ is a list
+of tuples, where each tuple represents an endpoint of a correctness interval.
+Each tuple is comprised of the id of the peer, an integer $type$ to indicate
+whether it is the high ($1$) or low ($-1$) endpoint of the correctness
+interval, and the $value$ of the endpoint. It is initially empty.
 
 \begin{algorithm}[!t]
     \centering
@@ -285,8 +298,10 @@ If the algorithm ends successfully, the remaining truechimers are used in the
 clustering algorithm, otherwise nothing further happens: the system clock of
 the client will not be synchronized.
 
-Note that the algorithm ``implementation'' in RFC5905 page 91 is completely
-wrong~\cite{rfc5905}.
+Note that the algorithm ``implementation'' in RFC 5905 page 91 is 
+wrong~\cite{rfc5905}. In that code, the number of peers is incorrectly
+calculated as the number of end points and midpoints of correctness intervals,
+which is three times the correct number.
 
 % \subsection{Midpoints of correctness intervals}
 % \label{midpoints_of_correctness_intervals}
@@ -325,8 +340,10 @@ The first one of the terminating tests is quite straightforward, but we add some
 detail about the second one. Recall that the peer jitter $\varphi$ is the
 root-mean-square (RMS) of offset differences between selection samples and
 valid ones in the shift register, as mentioned in
-Section~\ref{sub:clock_filter_algorithm}. It indicates how stable the peer is.
-The selection jitter indicates how ``far'' a truechimer's offset is away from
+Section~\ref{sub:clock_filter_algorithm}. It indicates the variance of sample
+offsets of the same peer which means how ``far'' sample offsets are from each
+other.
+The selection jitter of a truchimer represents how ``far'' its offset is away from
 others.  So if $\max(\varphi_{s,i}) \ge \min(\varphi_i)$, that means there is at
 least one truechimer's offset which is relatively far from the others. Otherwise,
 all of them are close enough together.
@@ -345,7 +362,11 @@ based on~\cite{redbook} and~\cite{source_code}.
 \section{Combining algorithm}%
 \label{sec:combine_algorithm}
 The combining algorithm is used to compute two system statistics: the system
-offset $\Theta$ and the system jitter $\vartheta$. Let $\theta_i$, $\varphi_i$,
+offset $\Theta$ and the system jitter $\vartheta$. The system offset is used
+in clock discipline process to discipline the system clock. The system jitter
+is ``the expected error, represents the nondeterministic uncertainty of the
+offset as estimated from the jitter contributions''~\cite{redbook}.
+Let $\theta_i$, $\varphi_i$,
 $\lambda_i$ represent the peer offset, peer jitter and the root distance of the
 $i$th survivor. Here we do the following calculations:~\cite{redbook}
 \begin{equation}
@@ -377,9 +398,17 @@ About the calculations:
     \item The system peer jitter is the root-weighted-average-square of peer
         jitters, where the weights are as the same as the weights in the
         calculation of system offset.
-    \item The system jitter is the geometric average of system selection jitter
-        and system peer jitter.
+    \item The system jitter is the root-mean-square of system peer jitter and
+        selection jitter. Note that the selection jitter is a part of system
+        peer jitter. From the calculation, we know that the system jitter is
+        in fact the root-weighted-average-square of peer jitters, where the
+        weight of selection jitter is more than the sum of others weights.
 \end{enumerate}
+Note the difference between the root distance and the system jitter. The root
+distance is the maximum error, while the system jitter is the estimated error.
+In practice, the error cannot exceed the root distance. ``This is an important
+distinction because different applications may need one or the other, or both
+of these statistics''~\cite{redbook}.
 
 \section{System peer selection}%
 \label{sec:system_peer_selection}
