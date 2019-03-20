@@ -4,7 +4,7 @@
 % Three kinds of devices.
 NTP operates on three different kinds of devices: primary servers, secondary
 servers and clients. Primary servers are directly synchronized to reference
-clocks and provides synchronization service to other devices.  Secondary severs
+clocks and provide synchronization services to other devices.  Secondary severs
 are synchronized to other servers instead of reference clocks and also provide
 synchronization services. Clients are synchronized to other servers but they do
 not provide synchronization to others~\cite{rfc5905}.
@@ -88,12 +88,12 @@ can be separated into the following processes:
         to the statistics of all peers, then passes them to clock discipline
         process.
     \item Clock Discipline Process\\
-        The clock discipline process is like a lowpass filter to smooth the
+        The clock discipline process is like a low-pass filter to smooth the
         data.  This process also maintains the poll intervals~\cite{redbook}.
         % red book p. 40
     \item Clock Adjust Process\\
         This part adjusts the system clock to make it continuous and monotonic
-        approximately which means that the system clock will not go
+        approximately, which means that the system clock will not go
         backward~\cite{redbook}. 
         % red book p. 40
 \end{itemize}
@@ -104,9 +104,10 @@ can be separated into the following processes:
 \input{figures/overview_arch}
 
 The structure of NTP is like a loop. In short, it requests synchronization
-information from servers, and after getting one or more respones, it processes
+information from servers, and after getting one or more responses, it processes
 the received information and (if necessary) adjust the system time.  After
-that, feedback from the clock adjust process is used to control poll processes.
+that, feedback from the clock adjust process is used to control the poll
+processes.
 
 In later chapters, we will discuss the peer/poll processes and the system
 process separately, then discuss the clock discipline process and the clock

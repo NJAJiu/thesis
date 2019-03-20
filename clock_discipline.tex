@@ -79,18 +79,20 @@ the relevant paragraphs in~\cite{redbook}, although it makes no sense to refer
 to one as an adjustment while not also referring to the other as an adjustment.
 The clock adjust process ``runs at intervals of 1s in the NTP daemon or one
 tick in the kernel''~\cite{redbook}, which generates the signal $V_c$. The VFO
-frequency is controlled by $V_c$.
+frequency is controlled by $V_c$. Note here, ``one tick in the kernel'' means
+one tick of a timer, which ticks once per second~\cite{rfc5905}.
 
 \input{figures/clock_discipline_arch.tex}
 % fig:clock_discipline_arch
 
 \section{Phase/frequency prediction}%
 \label{sec:phase_frequency_prediction}
-There are two kinds of designs: phase-locked loop (PLL) design and
-frequency-locked loop (FLL) design. In a PLL design, we change the phase
-directly and the frequency is updated indirectly. In a FLL design, we change
-the frequency directly and the phase is updated indirectly. In the current
-version of NTP (version 4) the two types of designs are combined together. 
+There are two kinds of designs for phase/frequency prediction: phase-locked
+loop (PLL) design and frequency-locked loop (FLL) design. In a PLL design, we
+change the phase directly and the frequency is updated indirectly. In a FLL
+design, we change the frequency directly and the phase is updated indirectly.
+In the current version of NTP (version 4) the two types of designs are combined
+together. 
 
 Figure~\ref{fig:phase_frequency_prediction}~\cite{redbook} shows the process of
 phase/frequency prediction. We have $x = V_s$ and $y = y + y_{PLL} + y_{FLL}$,
@@ -243,12 +245,12 @@ of the else branch.
 
 \section{Clock adjust process}%
 \label{sec:clock_adjust_process}
-The functionality of the clock adjust process depends on how the time is changed.
-If the time is stepped, a system call like \verb|settimeofday()| is called. If
-the time is slewed, the \verb|adjtimex()| or \verb|ntp_adjtime()| system call is
-used every one second and a phase increment $z=\frac{x}{16T_c}$ is passed to
-the system call, where $x$ is computed as in
-Section~\ref{sec:phase_frequency_prediction}, and $T_c$ is the length of the 
+The functionality of the clock adjust process depends on how the time is
+changed.  If the time is stepped, a system call like \verb|settimeofday()| is
+called. If the time is slewed, the \verb|adjtime()| or \verb|ntp_adjtime()|
+system call is used every one second and a phase increment $z=\frac{x}{16T_c}$
+is passed to the system call, where $x$ is computed as in
+Section~\ref{sec:phase_frequency_prediction}, and $T_c$ is the length of the
 poll interval.  Then the $x$ is updated as $x=x-z$ where the updated $x$ is
 called the residual phase error.
 

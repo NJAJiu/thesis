@@ -4,7 +4,7 @@
 
 \section{History and current situation}%
 \label{sec:history_and_current_situation}
-The basic idea of NTP was developed in the early 1980s. The NTP version 0 was
+The basic idea of NTP was developed in the early 1980s. NTP version 0 was
 implemented in 1985, and it is documented in RFC~958~\cite{rfc958}. 
 % But the actual implementation did a little bit more. 
 The NTP packet header and the calculations of offset and delay (as will be
@@ -13,10 +13,10 @@ time, the nominal accuracy could be in the low tens of milliseconds on an
 Ethernet network and better than 100 milliseconds on paths spanning the
 Atlantic Ocean.
 
-The NTP version 1 was documented in RFC~1059~\cite{rfc1059} one year later. It
+NTP version 1 was documented in RFC~1059~\cite{rfc1059} one year later. It
 contains a specification of the protocol and algorithms.
 
-The NTP version 2 specification is documented in RFC~1119~\cite{rfc1119} in 1989.
+The NTP version 2 specification was documented in RFC~1119~\cite{rfc1119} in 1989.
 This version
 includes new protocols for use in managing NTP servers and clients and a
 cryptographic authentication scheme.
@@ -42,10 +42,10 @@ RFC~5905~\cite{rfc5905}, which is NTP version 4; this was presented in 2010.
 time''~\cite{reference_clock}.
 % http://www.ntp.org/ntpfaq/NTP-s-algo.htm#Q-REFCLK
 The most important aspect of a reference clock is its accuracy; it must be
-synchronized to some time standard (usually UTC). If we want to synchronize a
-device to UTC, we require reference clocks as sources which are themselves
-synchronized to UTC\null. Some of them are
-available for many government dissemination services, includes~\cite{redbook}:
+synchronized to some time standard (usually UTC\null). If we want to
+synchronize a device to UTC, we require reference clocks as sources which are
+themselves synchronized to UTC\null. Some of them are
+available for many government dissemination services~\cite{redbook}, including:
 \begin{itemize}
     \item Global Positioning System (GPS) and Long-Range navigation (LORAN-C)
         systems
@@ -76,11 +76,13 @@ When the system clock is adjusted by NTP\null, both the time and the frequency
 will be adjusted. For Unix systems, NTP uses the \verb|ntp_adjtime()| or
 the \verb|adjtime()| system call to adjust the system time when the offset from
 the reference time is small.
-The benefit of using these system calls is that they will synchronize the system time step by
-step over a period of time, adjusting a small amount in one step, and finally
-synchronize the system clock. In this case, any running program which is sensitive to
+The benefit of using these system calls is that they will synchronize the
+system time step by
+step over a period of time, adjusting only a small amount in one step, and finally
+synchronize the system clock to the reference clock. In this case, any running
+program which is sensitive to
 time, such as a logging program, will only be slightly impacted. If we want to
-change system time back for some amount, it will not make later things
+change system time backward some amount, it will not make later things
 apparently happen earlier in the log. If we want to change system time forward,
 there will not be a gap in the time line, where nothing happened during that
 time. However, if the offset it from the reference time is big, NTP may make a

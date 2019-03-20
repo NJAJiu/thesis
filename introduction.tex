@@ -82,12 +82,12 @@ Suppose we are going to design a method to synchronize computer system clocks.
 The first thought might to use the method described in the last paragraph.
 Assume computer $C_1$ wants to synchronize to computer $C_2$, $C_1$ can
 send a message to $C_2$ then $C_2$ checks its time and replies to $C_1$. Then
-$C_1$ can adjust its system time.  However, there are a lot of problems.  The
-core one is that when $C_1$ receives the time, it can only know what time was
-when $C_2$ checked its time. $C_1$ cannot know how long it is from then to when
-$C_1$ receives the message. To solve these problems, the \emph{Network Time
-Protocol} (NTP) has been developed for devices
-to synchronize their system times over networks. 
+$C_1$ can adjust its system time.  However, there are a lot of problems with
+this simple scheme. The core one is that when $C_1$ receives the time, it can
+only know what time was when $C_2$ checked its time. $C_1$ cannot know how long
+it is from then to when $C_1$ receives the message. To solve these problems,
+the \emph{Network Time Protocol} (NTP) has been developed for devices to
+synchronize their system times over networks. 
 
 \section{Computers' Clocks}
 \label{sec:computers_clocks}
@@ -122,7 +122,7 @@ second~\cite{atomic_clock}.
 This accuracy is far beyond the timekeeping ability of current general-purpose
 computers to maintain, and beyond the current ability of networks to accurately
 transmit the time from an atomic clock to a distant computer. With this fact,
-we can always improve the performance of time synchronization after we
+we can continue to improve the performance of time synchronization as we
 significantly improve hardware or network capability.
 
 \section{Contribution}
@@ -131,6 +131,6 @@ The main purpose of this thesis is to investigate the algorithms in NTP\null.
 While the official documents cover most details about most technical issues,
 understanding it is in some respect complex and requires a strong background
 in mathematics and engineering. This thesis explains the algorithms
-and make some comments to help people have a better understanding of NTP and it
+and makes some comments to help people have a better understanding of NTP. It
 will be helpful for people who are interested in the NTP algorithms.
 
