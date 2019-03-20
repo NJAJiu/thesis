@@ -3,11 +3,11 @@
 \chapter{Conclusion}
 \label{cha:conclusion}
 
-As described earlier, the Network Time Protocol (NTP) was developed due to the
+As described earlier, the Network Time Protocol (NTP) was developed to satisfy the
 requirement of making a computer's system time accurate. The most commonly used
 standard time is Coordinated Universal Time (UTC), which NTP uses as well.
 UTC is kept by some reference clocks and only specific servers can access and
-synchronize to these high-accurate clocks. These servers are called primary
+synchronize to these high-accuracy clocks. These servers are called primary
 servers. Primary servers
 provide synchronization to others which means other devices can synchronize
 their system times to primary servers. An end user, for example, 
@@ -58,12 +58,12 @@ statistics can be used directly to discipline the system clock.
 The clock discipline process and clock adjust process actually works with the
 system clock. The clock discipline algorithm disciplines the time and frequency
 of the system clock based on the result of the system process. However, it has some
-mechanisms to avoid network spike and to reduce training time to get the intrinsic
+mechanisms to mitigate network spikes and to reduce training time to get the intrinsic
 frequency offset. NTP tries not to step the system time if possible. In that
 case, the clock adjust process is used to slew it.
 
-The clock discipline process also manage the poll interval of poll processes.
-So the overview NTP architecture can be considered as a loop.
+The clock discipline process also manages the poll interval of poll processes.
+Thus the overview NTP architecture can be considered to be a loop.
 
 During the investigation, multiple errors and conflicts of the official
 documents were found. The discussion in this thesis corrects apparent errors in

@@ -1,13 +1,14 @@
 
 % clock_discipline.tex
 
-\chapter{Clock discipline process and clock adjust process}%
+\chapter{Clock discipline and clock adjust process}%
 \label{cha:clock_discipline_process}
 The next step of the process is to change the system clock of the client. As
 mentioned in Section~\ref{sec:adjusting_system_time}, we want the system time
 to be changed ``smoothly'', which means that we want to change it a only little
-bit every time, but repeat such a change many times over an acceptable period
-of time. This is a ``smooth'' way of changing time. There are two thresholds
+bit every time it is changed, but repeat such a change many times over an
+acceptable period of time. This is a ``smooth'' way of changing the system
+time. There are two thresholds
 used in NTP: \emph{step} and \emph{panic}. When the offset exceeds the panic
 threshold, which is 1000 seconds by default, we do not change the time. If the
 offset is less than the panic threshold but more than the step threshold, which
@@ -126,7 +127,7 @@ Section~\ref{sec:clock_state_machine}.
 \section{Spikes and step control}%
 \label{sec:spikes_and_step_control}
 As we mentioned in Section~\ref{sub:clock_filter_algorithm}, the variance of
-offset depends on the round-trip delay. We can obverse that the performance of
+offset depends on the round-trip delay. We can observe that the performance of
 NTP depends on the quality of the network connection. The peer/poll processes
 are designed to maximize the performance of NTP while minimizing the impact on
 network traffic, as well as minimizing errors due to delay. The system process
@@ -166,11 +167,12 @@ frequency offset. Note that in the implementation of NTP\null, the word
 Suppose that at some time the NTP daemon stepped the system time After a period
 of time, there may be another time offset because of the frequency offset. NTP
 can determine the frequency offset from the current offset and the time period
-length.  However, this calculation may take hours of time~\cite{redbook}, which
-is called the \emph{training time}. 
+length.  However, this calculation may take many hours of time~\cite{redbook},
+which is called the \emph{training time}. 
 
 One solution to reduce the training time is to record the frequency offset into a file,
-which is called \emph{frequency file}. On Ubuntu 18.04.2 LTS, with the NTP
+which is called \emph{frequency file} or \emph{drift file}. On Ubuntu 18.04.2
+LTS, with the NTP
 daemon program \verb|ntpd| version 4.2.8p10 and the default \verb|ntpd|
 configuration (which is found in \verb|/etc/ntp.conf|), the file is
 \verb|/var/lib/ntp/ntp.drift|. The path of the frequency file can be set by
@@ -181,7 +183,7 @@ the file is \verb|ntp| in group \verb|ntp| and the permission of the file is
 
 This solution can reduce the training time after the system is rebooted and
 connected to a congested network. After rebooting, the frequency can be
-initialized based on the result of previously executions of the daemon.  
+initialized based on the result of previous executions of the daemon.  
 
 If we start up the NTP daemon without the frequency file, it first changes the
 time (step or adjust, based on the offset) and then starts the watchdog counter
@@ -193,7 +195,7 @@ be changed.
 \section{Clock state machine}%
 \label{sec:clock_state_machine}
 The NTP daemon uses a clock state machine which combines the ideas mentioned in
-previous three sections.
+the previous three sections.
 Table~\ref{tab:clock_state_machine_transition_function}, which is based on the
 same table in~\cite{redbook} with some changes, shows the states and transition
 functions. Note that in the same table in~\cite{rfc5905}, there is an apparent
@@ -202,7 +204,7 @@ error in that the cell where the state is \verb|FREQ| and $|\Theta| >$
 
 In the table, $\Theta$ is the system offset, \verb|STEP| and \verb|STEPOUT| are
 the step threshold and stepout threshold, the notation \verb|>| indicates the
-next state, $\mu$ is the watchdog counter mentioned in
+next state and $\mu$ is the watchdog counter mentioned in
 Section~\ref{sec:spikes_and_step_control} and
 Section~\ref{sec:intrinsic_frequency_offset}. When the NTP daemon starts up,
 the machine enters either the \verb|FSET| state or the \verb|NSET| state
@@ -248,10 +250,10 @@ of the else branch.
 The functionality of the clock adjust process depends on how the time is
 changed.  If the time is stepped, a system call like \verb|settimeofday()| is
 called. If the time is slewed, the \verb|adjtime()| or \verb|ntp_adjtime()|
-system call is used every one second and a phase increment $z=\frac{x}{16T_c}$
+system call is used every second and a phase increment $z=\frac{x}{16T_c}$
 is passed to the system call, where $x$ is computed as in
 Section~\ref{sec:phase_frequency_prediction}, and $T_c$ is the length of the
-poll interval.  Then the $x$ is updated as $x=x-z$ where the updated $x$ is
+poll interval.  Then $x$ is updated as $x=x-z$, where the updated $x$ is
 called the residual phase error.
 
 \section{Poll interval control}%
@@ -263,17 +265,20 @@ descriptions from~\cite{redbook}, \cite{poll_process} and~\cite{rfc5905} are
 all different from each other. Here the description is based on the
 implementation~\cite{source_code}.
 
-Recall that the length of the poll interval is called the time constant, represented by
-$T_c$ and we have $T_c = 2^\uptau$ where $\uptau$ is called the poll exponent.
+Recall that the length of the poll interval is called the time constant,
+represented by $T_c$, and we have $T_c = 2^\uptau$ where $\uptau$ is called the
+poll exponent. The basic idea of the maintenance is: when the NTP daemon does
+not need to change the system clock a ``large'' amount, the poll interval
+should be increased; otherwise it should be decreased.
 
-When the daemon starts up, poll intervals are not adjusted in the first
+When the daemon starts up, the poll interval is not adjusted in the first
 \verb|STEPOUT| seconds, where \verb|STEPOUT| is the stepout threshold.
 To maintain the poll interval, we need a statistic: \emph{clock jitter} $\psi$.
-It is initialize to the precision of the system clock when the daemon starts up and
-will not change after the first \verb|STEPOUT| seconds. After that, when an update of
-the system offset $\Theta$ occurs, the jitter is updated. If $\Theta > $
-\verb|STEP|, the clock jitter is reset to its initial value; otherwise the
-clock jitter is updated as follows:
+It is initialized to the precision of the system clock when the daemon starts
+up and will not change after the first \verb|STEPOUT| seconds. After that, when
+an update of the system offset $\Theta$ occurs, the jitter is updated. If
+$\Theta > $ \verb|STEP|, the clock jitter is reset to its initial value;
+otherwise the clock jitter is updated as follows:
 \begin{equation}
     \psi = \sqrt{ \frac{7}{8}\psi_{old}^2 + \frac{1}{8}\left(\Theta -
     \Theta_{old}\right)^2 }
@@ -283,7 +288,7 @@ where $\psi_{old}$ is the old clock jitter and $\Theta_{old}$ is the last
 updated system offset. 
 
 NTP uses a counter called the \emph{jiggle counter}, which is initialized to
-zero. When a system offset occurs, if the system offset exceeds the step
+zero. When an update of system offset occurs, if the system offset exceeds the step
 interval, it is also set to zero. If the system offset does not exceed the
 step interval, NTP operates as follows:
 if $\Theta < 4 \times \psi$, the counter increases by $\uptau$; 

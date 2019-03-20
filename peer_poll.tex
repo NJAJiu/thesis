@@ -21,10 +21,10 @@ them with more detail later.
         % $$\delta_{AB} = \left(T_{i} - T_{i-3}\right) - \left(T_{i-1} -
         % T_{i-2}\right)$$
     \item Dispersion $\varepsilon$\\
-        The maximum error inherent in the measurement.
+        The maximum error inherent in the measurement of timestamps.
         Another definition: Potential clock offset error due to the maximum
         uncorrected system clock frequency error.  These definitions are in
-        some respect confused, we will discuss them with more detail in
+        some respect confused, we will discuss them in greater detail in
         Section~\ref{sec:peer_processes}.
         % from website https://www.eecis.udel.edu/~mills/ntp/html/stats.html
     \item Jitter $\varphi$\\
@@ -34,13 +34,13 @@ them with more detail later.
 
 \section{Overview}%
 \label{sec:peer_poll_overview}
-The NTP on-wire protocol is used to send NTP packets between clients and
+The NTP ``on-wire protocol'' is used to send NTP packets between clients and
 servers.  Figure~\ref{fig:peer_poll_processes} shows the basic architecture of
 one peer/poll process. The communication between the client and one server
 uses the NTP on-wire protocol (explained in the next section), which can
 provide sample statistics ($\theta_0$, $\delta_0$, $t_0$ in the figure).  The most
-recent eight samples are stored in a shift register, with one more sample
-statistic ($\varepsilon_i$) added. Then the peer process applies the clock
+recent eight samples are stored in a shift register, along with one more sample
+statistic ($\varepsilon_i$). Then the peer process applies the clock
 filter algorithm, which generates peer statistics ($\theta$, $\delta$,
 $\varepsilon$, $\varphi$ in the figure), and passes them to the system process.
 
@@ -58,11 +58,11 @@ making the servers too busy.
 In an NTP subnet, a client can send a request to a server and the server sends
 back a response. This whole round of communication can generate one sample. For
 every sample, the client wants to know the difference between the server's
-system clock and its own clock (i.e., offset).  However it may take a while for
-the server to generate and send the response. This delay is not predictable, as
-well as the network delay between the two devices. In an NTP subnet, clients
-and servers communicate using an on-wire protocol. It provides a smart way to
-calculate offset and delay for every sample. 
+system clock and its own clock (i.e., the offset).  However, it may take a
+while for the server to generate and send the response. This delay is not
+predictable, as well as the network delay between the two devices. In an NTP
+subnet, clients and servers communicate using an on-wire protocol. It provides
+a smart way to calculate the offset and delay for every sample. 
 
 \subsection{Statistics calculation}%
 \label{sub:statistics_calculation}
@@ -77,11 +77,11 @@ actual time.
 \input{figures/on_wire1.tex}
 % fig:on_wire1
 
-In ideal situation, if we have $T_1$ and $T_0$, which are timestamps gotten
-from both devices at the same actual time, then we can get the offset $\theta$:
+In an ideal situation, if we have $T_1$ and $T_0$, which are timestamps gotten
+from both devices at the same instant, then we can get the offset $\theta$:
 $$\theta = T_1 - T_0$$
 However, we cannot do this since we cannot determine whether two timestamps
-were taken at the same time. The NTP on-wire protocol actually calculates the
+were taken at the same time. The NTP on-wire protocol calculates the
 offset in an alternative way:
 \begin{equation}
     \theta = \frac{1}{2}\left[(T_3 - T_2) + (T_4 - T_5)\right]
@@ -97,7 +97,7 @@ middle points are at the same time. In this case, it is equivalent to the ideal
 situation. If the delay is asymmetric, there will be an error of the
 calculation in that the calculated offset is biased by the degree of asymmetry
 of the delays. It is not possible to correct this error. However, there is one
-scenario that the error can be attenuated.~\cite{redbook} We will discuss this
+scenario in which the error can be attenuated~\cite{redbook}. We will discuss this
 part in Section~\ref{sub:huff_n_puff_filter}.
 
 The delay $\delta$ is calculated by:
@@ -105,9 +105,9 @@ The delay $\delta$ is calculated by:
     \delta = (T_5 - T_2) - (T_4 - T_3)
     \label{eq:delay_def}
 \end{equation}
-It is actually a difference of two time periods. It is not impacted by the
-offset, since each time period is calculated using two timestamps from the same
-device. 
+This delay is actually a difference of two time periods. It is not impacted by
+the offset, since each time period is calculated using two timestamps from the
+same device. 
 
 As mentioned in Section~\ref{sec:adjusting_system_time}, the frequency of 
 the system clock may not be accurate. This inaccuracy also impacts the
@@ -131,7 +131,11 @@ NTP uses NTP packets in communications. The NTP packet is a UDP
 datagram~\cite{rfc5905}. There are four timestamps in the NTP packet header:
 \begin{enumerate}
     \item Reference Timestamp\\
-        The time when the system clock was last set or corrected.
+        The time when the system clock was last set or corrected. When this
+        timestamp is in the header of an NTP packet from a server, this
+        timestamp means when the server's system clock was last set or
+        corrected. Note that this timestamp is useless in the header of an NTP
+        packet which is send from a client to a server. 
     \item Origin Timestamp (\emph{org})\\
         The time at the client when the request packet departs.
     \item Receive Timestamp (\emph{rec})\\
@@ -141,11 +145,11 @@ datagram~\cite{rfc5905}. There are four timestamps in the NTP packet header:
 \end{enumerate}
 In the peer process, we are interested in another time: destination
 timestamp (\emph{dst}), which is the time at the client when it receives the
-response packet. Further, the reference timestamp is not of interest to the
-client. In Figure~\ref{fig:on_wire1}, the packet which leaves at $T_4$ contains
-$T_4, T_3$ and $T_2$ in its header, where
-$$ \textit{org} = T_2,~\textit{rec} = T_3,~\textit{xmt} = T_4 $$
-When the client gets the packet, it captures $\textit{dst} = T_5$.
+response packet. The reference timestamp is not used in the calculation below.
+In Figure~\ref{fig:on_wire1}, the packet which leaves at $T_4$ contains $T_4$,
+$T_3$ and $T_2$ in its header, where $$ \textit{org} = T_2,~\textit{rec} =
+T_3,~\textit{xmt} = T_4 $$ When the client gets the packet, it captures
+$\textit{dst} = T_5$.
 
 The purpose of the on-wire protocol is to calculate the offset $\theta$ and
 delay $\delta$ based on the communication. The four timestamps used in
@@ -178,14 +182,15 @@ Instead of capturing softstamps before the packets are made, we can capture
 them shortly after the output interrupt. In this case, the accuracy is similar
 to that of drivestamps but they can not be sent in the same packet as the one
 whose transmission time they represent. We need one more packet if we want to
-send this kind of softstamps. More detail about interleaved modes are beyond
+send this kind of softstamps. More detail about interleaved modes is beyond
 the scope of this thesis.
 
 \subsection{Non-reliable protocol}%
 \label{sub:non_reliable_protocol}
 As mentioned in Section~\ref{sub:timestamps_in_ntp_packet}, the NTP packet is a
 UDP datagram. This makes the on-wire protocol not reliable, which means that
-there is no guarantee about the delivery of packets. Reliable delivery actually
+there is no guarantee about the delivery of packets. Possibly
+counterintuitively, reliable delivery actually
 decreases the reliability of NTP packets. Assume we are implementing the
 on-wire protocol to make it reliable by using techniques similar to TCP, a lost
 packet will be sent again. However, an identical packet is not valid since the
@@ -210,7 +215,7 @@ $$ \varepsilon = \rho_r + \rho_s + \phi (T_5 - T_2) $$
 where 
 \begin{itemize}
     \item 
-        $\rho_r$ is the root precision in NTP packet header. 
+        $\rho_r$ is the root precision in the NTP packet header. 
     \item 
         $\rho_s$ is the system
         precision which we discuss below.
@@ -246,11 +251,11 @@ described in Section~\ref{sec:intrinsic_frequency_offset}.
 \label{sub:initial_and_invalid_samples}
 When the NTP service starts, all eight groups of sample statistics in the shift
 register are initialized to the dummy tuple: $\theta = 0$, $\delta =
-\verb|MAXDISP|$, $\varepsilon = \verb|MAXDISP|$, $t = 0$, where $\verb|MAXDISP|
+\verb|MAXDISP|$, $\varepsilon = \verb|MAXDISP|$ and $t = 0$, where $\verb|MAXDISP|
 = 16$ is the maximum dispersion~\cite{rfc5905}.
 
-There is a 8-bit shift register called the reach register which is shared by
-the peer
+There is a 8-bit shift register called the ``reach register'''''' which is
+shared by the peer
 and poll process and used to determine whether the server is reachable and the
 data is fresh. It is maintained by the poll process, which we will discuss in
 Section~\ref{sec:poll_processes}. After a packet is sent to the server, the
@@ -269,8 +274,8 @@ The clock filter algorithm calculates peer statistics used in the system
 process.  As mentioned in Section~\ref{sec:peer_poll_overview}, there are eight
 groups of sample statistics in the shift register. The clock filter algorithm
 selects one of them to represent the offset and delay of the server, then
-calculates the peer dispersion and jitter, passes them to the system process,
-as well as the arrival time of the selected sample.
+calculates the peer dispersion and jitter, and then passes them, as well as the
+arrival time of the selected sample, to the system process.
 
 Figure~\ref{fig:clock_filter} is ``a wedge scattergram plotting sample points
 of offset versus delay collected over a 24-hr period''~\cite{clock_filter}. It
@@ -281,7 +286,7 @@ will discuss this more in Section~\ref{sub:huff_n_puff_filter}.
 \input{figures/clock_filter}
 % fig:clock_filter
 
-Based on the result seen in Figure~\ref{fig:clock_filter}, the clock filter
+Based on the information seen in Figure~\ref{fig:clock_filter}, the clock filter
 algorithm first sorts the samples by their delay. If the first sample is later
 than the last sample we selected, it is selected; otherwise nothing more
 happens. This mechanism guarantees that a sample will be used at most
@@ -303,7 +308,7 @@ The peer jitter $\varphi$ is calculated by:
 \end{equation}
 where $n$ is the number of valid samples in the shift register ($n > 1$).
 The peer jitter is the root-mean-square (RMS) of differences between sample
-offsets and the sample offset of the selected sample, ``it represents the
+offsets and the sample offset of the selected sample: ``it represents the
 nominal error in estimating the offset''~\cite{rfc5905}. A larger jitter
 indicates that the offset varies more; in that case, we can consider that there
 may be some problem with the server and/or the connection, since the offset
@@ -348,17 +353,17 @@ actually error, which is the reason that we select the sample with smallest
 delay, which leads to smallest offset error.
 
 The clock filter algorithm works best when there is a symmetric delay, as
-Figure~\ref{fig:clock_filter} shows. It is also mentioned that the errors due
+Figure~\ref{fig:huff_n_puff1} shows. It is also mentioned that the errors due
 to asymmetric delay are almost unable to be corrected~\cite{redbook}. However,
-huff-n'-puff filter is used to attenuate these errors.
+the huff-n'-puff filter is used to attenuate these errors.
 
 Figure~\ref{fig:huff_n_puff2}~\cite{huff_n_puff} shows a scattergram like
 Figure~\ref{fig:huff_n_puff1}, but the network delay is much more asymmetric.
 From the figure, we find that the samples are close to the upper limb line,
 which indicates that the offset error is positive. This means that the upload
-delay is larger than the download delay. However, the document
-in~\cite{huff_n_puff} shows the opposite opinion, which is an error in the
-document. By applying the huff-n'-puff filter, we can do the following:
+delay is larger than the download delay. (Note that document~\cite{huff_n_puff}
+shows the opposite opinion, which is an error in the
+document.) By applying the huff-n'-puff filter, we can do the following:
 \begin{itemize}
     \item 
         Remember the recent sample with lowest delay, where ``recent'' usually
@@ -409,17 +414,16 @@ The key part of the poll process is the time constant $T_c$ and its
 exponent $\uptau$ where $T_c = 2 ^ {\uptau}$. A client sends poll requests to
 each server with a \emph{poll interval} of $T_c$ seconds. The exponent $\uptau$
 is a whole number and is called the \emph{poll exponent}, which ranges from 4
-to 17~\cite{rfc5905}.
-
+to 17~\cite{rfc5905}.  
 $T_c$ and $\uptau$ are maintained by the clock discipline process. This is
-discussed latter in Chapter~\ref{cha:clock_discipline_process}.
+discussed later in Chapter~\ref{cha:clock_discipline_process}.
 
-There are two options to the poll process: \verb|BURST| and \verb|IBURST|. With
-the \verb|BURST| option, instead of sending one request at each poll interval,
-the poll process sends 8 packets. The interval between packets is two seconds.
-With the \verb|IBURST| option, when a server is unreachable, it sends 8 packets
-at two seconds intervals. The \verb|IBURST| option is used to reduce the
-synchronization time at initial start up while the \verb|BURST| option can
+There are two options to the poll process: \verb|BURST| and \verb|IBURST|\null.
+With the \verb|BURST| option, instead of sending one request at each poll
+interval, the poll process sends 8 packets. The interval between packets is two
+seconds.  With the \verb|IBURST| option, when a server is unreachable, it sends
+8 packets at two seconds intervals. The \verb|IBURST| option is used to reduce
+the synchronization time at initial start up while the \verb|BURST| option can
 reduce noise at long poll intervals~\cite{poll_process}.
 
 In next chapter, we will have a look at how system process handle the
