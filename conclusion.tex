@@ -3,69 +3,73 @@
 \chapter{Conclusion}
 \label{cha:conclusion}
 
-As we discussed before, the Network Time Protocol (NTP) comes from the
-requirement of making system time accurate. The most commonly used standard
-time is Coordinated Universal Time (UTC), which NTP uses this as well. The UTC
-is kept by some reference clocks and only specific servers can access and
-synchronize to them. These servers are called primary servers. Primary servers
+As described earlier, the Network Time Protocol (NTP) was developed due to the
+requirement of making a computer's system time accurate. The most commonly used
+standard time is Coordinated Universal Time (UTC), which NTP uses as well.
+UTC is kept by some reference clocks and only specific servers can access and
+synchronize to these high-accurate clocks. These servers are called primary
+servers. Primary servers
 provide synchronization to others which means other devices can synchronize
-their system times to primary servers'. As an end user, for example, someone is
-running NTP daemon on her own laptop, the device should not synchronize to
-primary servers since in that case primary servers will be too busy. To deal
-with this problem, we introduced secondary servers and the concept ``stratum''.
+their system times to primary servers. An end user, for example, 
+running NTP daemon on her own laptop, should not synchronize to
+primary servers, since in that case primary servers will be too busy. To deal
+with this problem, secondary servers and the ``stratum'' concept were
+introduced.
 Secondary servers synchronize to other servers and provide synchronization but
-they do not access to reference clocks directly.  Stratum is another expression
-of ``layer''. All primary servers are in stratum one. The stratum number of
-secondary server is equal to the stratum number of server that it synchronizes
+they do not access to the reference clocks directly.   All primary servers are
+in stratum one. The stratum number of
+secondary server is equal to the stratum number of the server to that it synchronizes
 to plus one. For example, a secondary server which synchronizes to a primary
 server is in stratum two. 
 
-As a client, we need to send synchronization request to servers, then adjust
-system clock based on the feedback. The peer/poll processes deal with the
+Clients send synchronization request to servers, then adjust their
+system clocks based on the feedback. The peer/poll processes deal with the
 communication part. Poll processes send request to servers at poll intervals.
-When a response packet arrives, we can calculate offset and round-trip delay
+When a response packet arrives, offset and round-trip delay are calculated
 based on the timestamps in the packet. We need four timestamps to do this job,
 which are when the request packet is sent and received and when the response
-packet is sent and received. We also record several recent result to measure
-the reliability of servers. One problem here is the asymmetric network delay.
-Errors caused by this are almost impossible to fix. We use huff-n'-puff
-filter to attenuate these errors.
+packet is sent and received. Several recent results are recorded to measure
+the reliability of servers. One problem with this procedure is the asymmetric
+network delay.  Errors caused by this are almost impossible to properly handle.
+An algorithm known as huff-n'-puff filter is used to attenuate these errors.
 
-System process takes results of peer processes, produce a best estimate of
-offset to synchronize the system clock. The selection algorithm first looks at
-all peers and tries to eliminates falsetickers, which are peers that are
-considered not to have an accurate time. The algorithm let every peer provide a
-correctness interval which is the maximum range that the accurate time should
-be in. If most intervals have a common intersection, the rest which do not have
-any point in the intersection are considered as falsetickers. 
+The system process takes results of the peer processes and produces a best
+estimate of offset to synchronize the system clock. The selection algorithm
+first looks at all peers and tries to eliminates falsetickers, which are peers
+that are considered not to have an accurate time. The algorithm lets every peer
+provide a correctness interval which is the maximum range that the accurate
+time should be in. If most intervals have a common intersection, the rest which
+do not have any point in the intersection are considered as falsetickers. 
 
 The clustering algorithm tries to find a group of peers which have better
-performance to synchronize system clock. Although all peers left at that time
-can provide accurate time, some of them may have very large correctness
-interval. In that case, they are not confident about where is the accurate
-time. The clustering algorithm tries to eliminates some peers so that the left
+performance to synchronize the system clock. Although all peers left at that
+time can provide accurate time, some of them may have a very large correctness
+interval. In that case, the algorithm is not confident about the accurate time.
+The clustering algorithm tries to eliminates some peers so that the remaining
 correctness intervals are close to each other.
 
-The combine algorithm computes system statistics used to discipline the system
-clock in clock discipline algorithm. If the algorithm runs on a server, the
-results can be used in the header of response packets. Users can designate
-prefer peer (usually one) so that the clustering and combining algorithm can be
-skipped if the peer passed the selection algorithm and its peer statistics can
-be used directly to discipline the system clock.
+The combining algorithm computes system statistics used to discipline the system
+clock in the clock discipline algorithm. If the algorithm runs on a server, the
+results can be used in the header of response packets. Users can designate a
+prefer peer (usually just one) so that the clustering and combining algorithms
+can be skipped if the peer passed the selection algorithm and its peer
+statistics can be used directly to discipline the system clock.
 
-The clock discipline process and clock adjust process actually works with
-system clock. The clock discipline algorithm discipline the time and frequency
-of system clock based on the result of system process. However, it has some
-mechanisms to avoid network spike and to reduce training time to get intrinsic
+The clock discipline process and clock adjust process actually works with the
+system clock. The clock discipline algorithm disciplines the time and frequency
+of the system clock based on the result of the system process. However, it has some
+mechanisms to avoid network spike and to reduce training time to get the intrinsic
 frequency offset. NTP tries not to step the system time if possible. In that
-case, clock adjust process is used to slew it.
+case, the clock adjust process is used to slew it.
 
 The clock discipline process also manage the poll interval of poll processes.
 So the overview NTP architecture can be considered as a loop.
 
-During the investigation, some errors and conflicts of official documents are
-found. Apparent errors are directly fixed while conflicts are changed based on
-the implementation of NTP, which is~\cite{source_code}. There are some
-explanation added to help us understand stuff such as the meaning of
-statistics. 
+During the investigation, multiple errors and conflicts of the official
+documents were found. The discussion in this thesis corrects apparent errors in
+the official documents, and conflicts between documents are resolved by
+examining the distributed NTP software~\cite{source_code}. 
+Finally, this thesis added explanations above and beyond those found in the
+official documentation in the hope that readers will be able to use this
+document to better understand the operation of NTP.
 

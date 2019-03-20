@@ -6,5 +6,4 @@
 figures/*.*
 !figures/*.tex
 !figures/*.png
-!Makefile
 !**.sty
