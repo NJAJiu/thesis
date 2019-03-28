@@ -69,9 +69,15 @@ computer, they do not
 have to be synchronized to any external devices. In some other cases, a device
 may need to be synchronized to a standard time. 
 Coordinated Universal Time (UTC) is one kind of standard time, it is similar 
-to Greenwich Mean Time but the latter one is not a standard one. UTC is kept
-using atomic clocks, which can be considered to be very accurate. UTC is widely
-used for time synchronization purposes.
+to Greenwich Mean Time (GMT) but the latter one is not a standard one. 
+In practice, UTC and GMT share the same current time, but the main difference
+between them is that GMT is a timezone while UTC is not~\cite{utc}. When we are
+talking about time in GMT\null, we are talking about the time in that time
+zone.  UTC is used more commonly, computer operating systems like Linux use UTC
+to represent their system clocks. When we are talking about the time in UTC, we
+are talking about the standard time. UTC is kept using atomic clocks, which can
+be considered to be very accurate. UTC is widely used for time synchronization
+purposes.
 
 An easy way of synchronizing a clock is to ask someone else for the time, and
 then adjust the system clock manually. We adjust the time of our
@@ -83,11 +89,11 @@ The first thought might to use the method described in the last paragraph.
 Assume computer $C_1$ wants to synchronize to computer $C_2$, $C_1$ can
 send a message to $C_2$ then $C_2$ checks its time and replies to $C_1$. Then
 $C_1$ can adjust its system time.  However, there are a lot of problems with
-this simple scheme. The core one is that when $C_1$ receives the time, it can
-only know what time was when $C_2$ checked its time. $C_1$ cannot know how long
-it is from then to when $C_1$ receives the message. To solve these problems,
-the \emph{Network Time Protocol} (NTP) has been developed for devices to
-synchronize their system times over networks. 
+this simple scheme. The core one is that when $C_1$ receives the time, it only
+knows when $C_2$ checked its time. $C_1$ cannot know how long it is from then
+to when $C_1$ receives the message. To solve these problems, the \emph{Network
+Time Protocol} (NTP) has been developed for devices to synchronize their system
+times over networks. 
 
 \section{Computers' Clocks}
 \label{sec:computers_clocks}
@@ -128,9 +134,9 @@ significantly improve hardware or network capability.
 \section{Contribution}
 \label{sec:contribution}
 The main purpose of this thesis is to investigate the algorithms in NTP\null.
-While the official documents cover most details about most technical issues,
-understanding it is in some respect complex and requires a strong background
-in mathematics and engineering. This thesis explains the algorithms
-and makes some comments to help people have a better understanding of NTP. It
-will be helpful for people who are interested in the NTP algorithms.
+While the official documents cover most technical issues, understanding it is
+in some respect complex and requires a strong background in mathematics and
+engineering. This thesis explains the algorithms and makes some comments to
+help people have a better understanding of NTP\null.  It will be helpful for
+people who are interested in the NTP algorithms.
 

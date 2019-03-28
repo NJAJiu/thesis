@@ -16,7 +16,7 @@ them with more detail later.
         % \left(T_{i-1} - T_i\right)\right]$$
     \item Delay $\delta$\\
         The round-trip delay between the client and server. It is equal to the
-        amount of time that a massage takes to travel from the client to the
+        amount of time that a message takes to travel from the client to the
         server plus the time for the return trip.
         % $$\delta_{AB} = \left(T_{i} - T_{i-3}\right) - \left(T_{i-1} -
         % T_{i-2}\right)$$
@@ -69,7 +69,7 @@ a smart way to calculate the offset and delay for every sample.
 Figure~\ref{fig:on_wire1} represents the timestamps and communications between
 a client and a server. The vertical dashed line indicates the same time. The
 arrow indicates the communication packets sent from one side and received at
-the other side. The notation $T_i$ stands for the timestamp gotten from the
+the other side. The notation $T_i$ stands for the timestamp obtained from the
 system clock of one device. Note that these timestamps are times of a given
 computer system's clock, which is (in general) only an approximation to the
 actual time.
@@ -77,8 +77,9 @@ actual time.
 \input{figures/on_wire1.tex}
 % fig:on_wire1
 
-In an ideal situation, if we have $T_1$ and $T_0$, which are timestamps gotten
-from both devices at the same instant, then we can get the offset $\theta$:
+In an ideal situation, if we have $T_1$ and $T_0$, which are timestamps
+obtained from both devices at the same instant, then we can get the offset
+$\theta$:
 $$\theta = T_1 - T_0$$
 However, we cannot do this since we cannot determine whether two timestamps
 were taken at the same time. The NTP on-wire protocol calculates the

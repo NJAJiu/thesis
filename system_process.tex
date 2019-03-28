@@ -122,7 +122,7 @@ performed, which include the following:
         If the server is unreachable, an unreachable error occurs.
 \end{enumerate}
 If any one of these errors occurs, the relevant peer is considered as
-nonselectable and will not be considered in the following selection
+non-selectable and will not be considered in the following selection
 algorithm.
 
 \subsection{Background}%
@@ -177,8 +177,8 @@ which are the lower and upper boundaries of the intersection interval.
 
 There is another problem with the intersection interval. The offset of peers are
 the midpoints of the correctness intervals. It is said that the intersection
-interval should contains all midpoints of the correctness intervals of
-truchimers~\cite{redbook}. But we did not define the intersection interval in
+interval should contain all the midpoints of the correctness intervals of
+truechimers~\cite{redbook}. But we did not define the intersection interval in
 this way because in the source code of NTP~\cite{source_code}, the
 intersection interval is determined without considering the midpoints of
 correctness intervals.
@@ -318,7 +318,7 @@ and the calculation is:
     \theta_j)^2 }
     \label{eq:selection_jitter}
 \end{equation}
-where $m$ is the number of truchimers.
+where $m$ is the number of truechimers.
 
 The clustering algorithm does the following things:
 \begin{enumerate}
@@ -343,7 +343,7 @@ valid ones (non-dummy tuples) in the shift register, as mentioned in
 Section~\ref{sub:clock_filter_algorithm}. It indicates the variance of sample
 offsets of the same peer which means how ``far'' sample offsets are from each
 other.
-The selection jitter of a truchimer represents how ``far'' its offset is away from
+The selection jitter of a truechimer represents how ``far'' its offset is away from
 others.  So if $\max(\varphi_{s,i}) \ge \min(\varphi_i)$, that means there is at
 least one truechimer's offset which is relatively far from the others. Otherwise,
 all of them are close enough to each other.

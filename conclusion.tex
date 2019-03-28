@@ -24,7 +24,7 @@ server is in stratum two.
 
 Clients send synchronization request to servers, then adjust their
 system clocks based on the feedback. The peer/poll processes deal with the
-communication part. Poll processes send request to servers at poll intervals.
+communication part. Poll processes send requests to servers at poll intervals.
 When a response packet arrives, offset and round-trip delay are calculated
 based on the timestamps in the packet. We need four timestamps to do this job,
 which are when the request packet is sent and received and when the response
@@ -35,7 +35,7 @@ An algorithm known as huff-n'-puff filter is used to attenuate these errors.
 
 The system process takes results of the peer processes and produces a best
 estimate of offset to synchronize the system clock. The selection algorithm
-first looks at all peers and tries to eliminates falsetickers, which are peers
+first looks at all peers and tries to eliminate falsetickers, which are peers
 that are considered not to have an accurate time. The algorithm lets every peer
 provide a correctness interval which is the maximum range that the accurate
 time should be in. If most intervals have a common intersection, the rest which

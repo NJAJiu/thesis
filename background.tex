@@ -45,7 +45,7 @@ The most important aspect of a reference clock is its accuracy; it must be
 synchronized to some time standard (usually UTC\null). If we want to
 synchronize a device to UTC, we require reference clocks as sources which are
 themselves synchronized to UTC\null. Some of them are
-available for many government dissemination services~\cite{redbook}, including:
+available from government dissemination services~\cite{redbook}, including:
 \begin{itemize}
     \item Global Positioning System (GPS) and Long-Range navigation (LORAN-C)
         systems
@@ -56,7 +56,7 @@ available for many government dissemination services~\cite{redbook}, including:
     \item Similar systems and services in other countries
 \end{itemize}
 Generally, we want all devices synchronized to UTC as well as reference clocks.
-But in some case, we may just want all devices in a local area network
+But in some cases, we may just want all devices in a local area network
 synchronized to a certain ``standard'' time such as the system time of a
 certain device among them. In this case, no UTC reference clock is in the
 subnet. However, we can consider the device to which others are synchronized as
@@ -85,10 +85,10 @@ time, such as a logging program, will only be slightly impacted. If we want to
 change system time backward some amount, it will not make later things
 apparently happen earlier in the log. If we want to change system time forward,
 there will not be a gap in the time line, where nothing happened during that
-time. However, if the offset it from the reference time is big, NTP may make a
+time. However, if the offset from the reference time is large, NTP may make a
 large, abrupt change in the system time.
 
-In next chapter, we will have an overview of the architecture of the network
+In next chapter, we give an overview of the architecture of the network
 operated by NTP and the internal processes of a NTP daemon program.
 
 % \section{Concepts}%

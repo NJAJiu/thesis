@@ -144,7 +144,7 @@ later since a spike may occur. The noise gate uses a ``watchdog counter'' and a
 the offset exceeded the step threshold. If the offset becomes less than the step
 threshold, the counter is set to zero. We step the time if the counter exceeds
 the stepout threshold. Then the counter is set back to zero. The default value
-of the stopout threshold is reported as 900 seconds in~\cite{redbook}
+of the stepout threshold is reported to be 900 seconds in~\cite{redbook}
 and~\cite{rfc5905}, but is 300 seconds in~\cite{source_code}
 and~\cite{clock_state_machine}. 
 
