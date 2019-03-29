@@ -94,7 +94,7 @@ where
 Then we have the root distance $\lambda$ which is calculated as follows:
 \begin{align}
     \lambda & = \frac{\Delta}{2} + E\\
-    & =\frac{\max(\mindisp\, \delta_p + \delta)}{2} 
+    & =\frac{\max(\mindisp,\ \delta_p + \delta)}{2} 
     + \varepsilon_p + \varepsilon + \varphi
     \label{eq:root_distance}
 \end{align}
@@ -349,8 +349,12 @@ least one truechimer's offset which is relatively far from the others. Otherwise
 all of them are close enough to each other.
 
 After applying the clustering algorithm, there are some peers left, which are
-called survivors. We sort them by a merit factor $\lambda_p = stratum_p \times
-\verb|MAXDIST| + \lambda$, from low to high, where $stratum_p$ is the stratum
+called survivors. We sort them by a merit factor:
+\begin{equation}
+    \lambda_p = stratum_p \times \verb|MAXDIST| + \lambda
+    \label{eq:merit_factor}
+\end{equation}
+from low to high, where $stratum_p$ is the stratum
 number of the peer. The selection jitter of the first peer of the sorted
 survivors list is saved as the system selection jitter $\varphi_s$. Note that
 the NTP official documents (\cite{redbook} and~\cite{rfc5905}) mention that we
@@ -425,5 +429,60 @@ Some system variables come from the system peer. The important ones
 include the stratum number, which is the stratum of the system peer plus one.
 The system root delay and root dispersion are calculated using
 Equation~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
+
+\section{Example}%
+\label{sec:example}
+
+Assume that after applying the clustering algorithm, there are five survivors. 
+Table~\ref{tab:sur} shows the statistics of them. (The units in the table are
+milliseconds)
+
+\begin{table}[htpb]
+    \centering
+    \caption{Statistics of five survivors}
+    \label{tab:sur}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+         & Stratum & Delay & Offset & Jitter & Dispersion & Root delay & Root
+        dispersion \\
+        \hline
+        1 & 2 & 77.585 & -10.551 & 149.943 & 32.296 & 0.122  & 26.749  \\
+        2 & 2 & 37.244 & -16.9   & 11.436  & 17.035 & 29.556 & 38.834  \\
+        3 & 2 & 55.049 & -24.445 & 186.867 & 32.26  & 0.107  & 1.419   \\
+        4 & 3 & 67.729 & -21.045 & 191.1   & 24.189 & 41.565 & 502.487 \\
+        5 & 2 & 88.432 & -38.419 & 113.491 & 20.872 & 7.492  & 21.454  \\
+        \hline
+    \end{tabular}
+\end{table}
+
+By applying Equation~\ref{eq:root_distance}, Equation~\ref{eq:merit_factor}
+and Equation~\ref{eq:selection_jitter},
+we have:
+\begin{table}[!h]
+    \centering
+    \caption{Root distances and merit factors}
+    \label{tab:root_distance}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+         & Root distance & Merit factor & Selection jitter \\
+        \hline
+         1 & 47.8415 & 3247.8415 & 16.7339 \\
+         2 & 100.705 & 3100.705  & 12.0154 \\
+         3 & 248.124 & 3248.124  & 10.6864 \\
+         4 & 772.423 & 5272.423  & 10.4966 \\
+         5 & 203.779 & 3203.779  & 20.8375 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Thus we select server 2 as the system peer. Then we apply
+Equation~\ref{eq:system_offset_selection_jitter}, Equation~\ref{eq:normalizer}
+and Equation~\ref{eq:system_jitter}, we have:
+\begin{align*}
+    \text{System offset } \Theta & = -21.683\\ 
+    \text{System peer jitter } \varphi_r &= 119.100\\
+    \text{Normalizer } a &= 41.327\\
+    \text{System jitter } \vartheta & = 119.705
+\end{align*}
 
 In the next chapter, we will discuss how to discipline the system clock.

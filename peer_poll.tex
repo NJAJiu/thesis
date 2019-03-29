@@ -147,6 +147,9 @@ datagram~\cite{rfc5905}. There are four timestamps in the NTP packet header:
 In the peer process, we are interested in another time: destination
 timestamp (\emph{dst}), which is the time at the client when it receives the
 response packet. The reference timestamp is not used in the calculation below.
+All timestamps are 64-bit numbers. The first 32 bits represents the
+number of seconds since 0 h 1st January 1900 UTC~\cite{rfc5905}. The second 32
+bits are used as the fraction part, which resolves 232 picosecondes.
 In Figure~\ref{fig:on_wire1}, the packet which leaves at $T_4$ contains $T_4$,
 $T_3$ and $T_2$ in its header, where $$ \textit{org} = T_2,~\textit{rec} =
 T_3,~\textit{xmt} = T_4 $$ When the client gets the packet, it captures
@@ -197,6 +200,38 @@ on-wire protocol to make it reliable by using techniques similar to TCP, a lost
 packet will be sent again. However, an identical packet is not valid since the
 timestamp which indicates the time when the packet is sent is incorrect.
 
+\subsection{Example}%
+\label{sub:example}
+Assume a clients sent a request to one server and got a response. The four
+timestamps are:
+$$
+\textit{org} = T_2 = 3762785257.12414
+$$
+$$
+\textit{rec} = T_3 = 3762785257.13128 
+$$
+$$
+\textit{xmt} = T_4 = 3762785257.15132
+$$
+$$
+\textit{dst} = T_5 = 3762785257.16213 
+$$
+We can calculate the offset:
+\begin{align*}
+\theta & = \frac{1}{2}\left[(T_3 - T_2) + (T_4 - T_5)\right]\\
+       & = \frac{1}{2}[(3762785257.13128 - 3762785257.12414) \\
+       & + (3762785257.15132 - 3762785257.16213)]\\
+       & = -0.001835
+\end{align*}
+and the delay:
+\begin{align*}
+\delta & = (T_5 - T_2) - (T_4 - T_3) \\
+       & = (3762785257.16213 - 3762785257.12414) \\
+       & - (3762785257.15132 - 3762785257.13128) \\
+       & = 0.01795
+\end{align*}
+thus we have the offset is 1.835 ms and the delay is 17.95 ms.
+
 \section{Peer processes}%
 \label{sec:peer_processes}
 As shown in Figure~\ref{fig:peer_poll_processes}, 
@@ -216,7 +251,8 @@ $$ \varepsilon = \rho_r + \rho_s + \phi (T_5 - T_2) $$
 where 
 \begin{itemize}
     \item 
-        $\rho_r$ is the root precision in the NTP packet header. 
+        $\rho_r$ is the packet precision in the NTP packet header. 
+        % It represents the system precision of the server.
     \item 
         $\rho_s$ is the system
         precision which we discuss below.
@@ -315,6 +351,49 @@ indicates that the offset varies more; in that case, we can consider that there
 may be some problem with the server and/or the connection, since the offset
 should not change much if we did not adjust the client's system clock by a
 large amount.
+
+\subsection{Example}%
+\label{sub:example}
+Assume for a peer, we have 8 samples in the shift register, the offsets, delays
+and dispersions are in Table~\ref{tab:clock_filter}:
+\begin{table}[htpb]
+    \centering
+    \caption{8 samples in shift register}
+    \label{tab:clock_filter}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        Index after sorting ($i$) & offset $\theta_i$ & delay $\delta_i$ 
+        & dispersion $\varepsilon_i$ \\
+        \hline
+        4& -31.87&  165.34&  0.459\\
+        \hline
+        7&  -5.04&  193.85&  1.202\\
+        \hline
+        6& -42.67&  175.49&  2.303\\
+        \hline
+        3& -15.21&  156.37&  3.355\\
+        \hline
+        2& -10.36&  117.40&  4.161\\
+        \hline
+        1&  23.99&   73.12&  5.137\\
+        \hline
+        5&  -3.81&  166.99&  5.948\\
+        \hline
+        0&  34.04&   64.09&  6.842\\
+        \hline
+    \end{tabular}
+\end{table}
+where the units of offsets, delay and dispersion are millisecond.
+Table~\ref{tab:clock_filter} shows the indices of of the samples after sorting
+them by their delay. In this case, the peer offset will be 34.04 ms and the
+peer delay will be 64.09 ms. The peer dispersion $\varepsilon$ is:
+$$ \varepsilon = \sum^{7}_{i=0} \frac{\varepsilon_i}{2^{(i+1)}} = 11.13
+\text{ ms} $$
+and the peer jitter is 
+$$
+    \varphi = \sqrt{\frac{1}{n-1} \sum^{n-1}_{j=1} (\theta_0 - \theta_j)^2}
+    = 52.27 \text{ ms}
+$$
 
 \subsection{Huff-n'-puff filter}%
 \label{sub:huff_n_puff_filter}
