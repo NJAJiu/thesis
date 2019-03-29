@@ -170,9 +170,9 @@ can determine the frequency offset from the current offset and the time period
 length.  However, this calculation may take many hours of time~\cite{redbook},
 which is called the \emph{training time}. 
 
-One solution to reduce the training time is to record the frequency offset into a file,
-which is called \emph{frequency file} or \emph{drift file}. On Ubuntu 18.04.2
-LTS, with the NTP
+One solution to reduce the training time is to record the frequency offset into
+a file, which is called the \emph{frequency file} or \emph{drift file}. On
+Ubuntu 18.04.2 LTS, with the NTP
 daemon program \verb|ntpd| version 4.2.8p10 and the default \verb|ntpd|
 configuration (which is found in \verb|/etc/ntp.conf|), the file is
 \verb|/var/lib/ntp/ntp.drift|. The path of the frequency file can be set by

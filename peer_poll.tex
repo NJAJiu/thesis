@@ -147,13 +147,13 @@ datagram~\cite{rfc5905}. There are four timestamps in the NTP packet header:
 In the peer process, we are interested in another time: destination
 timestamp (\emph{dst}), which is the time at the client when it receives the
 response packet. The reference timestamp is not used in the calculation below.
-All timestamps are 64-bit numbers. The first 32 bits represents the
-number of seconds since 0 h 1st January 1900 UTC~\cite{rfc5905}. The second 32
-bits are used as the fraction part, which resolves 232 picosecondes.
-In Figure~\ref{fig:on_wire1}, the packet which leaves at $T_4$ contains $T_4$,
-$T_3$ and $T_2$ in its header, where $$ \textit{org} = T_2,~\textit{rec} =
-T_3,~\textit{xmt} = T_4 $$ When the client gets the packet, it captures
-$\textit{dst} = T_5$.
+All timestamps are 64-bit numbers. The first 32 bits represent the
+number of seconds since 00:00 January 1 1900 UTC~\cite{rfc5905}. The second 32
+bits are used as the fractional part, which provides a resolution of 232
+picosecondes. Referring to Figure~\ref{fig:on_wire1}, the packet which leaves
+at $T_4$ contains $T_4$, $T_3$ and $T_2$ in its header, where $$ \textit{org} =
+T_2,~\textit{rec} = T_3,~\text{and }\textit{xmt} = T_4 $$ When the client gets
+the packet, it captures $\textit{dst} = T_5$.
 
 The purpose of the on-wire protocol is to calculate the offset $\theta$ and
 delay $\delta$ based on the communication. The four timestamps used in
@@ -198,11 +198,11 @@ counterintuitively, reliable delivery actually
 decreases the reliability of NTP packets. Assume we are implementing the
 on-wire protocol to make it reliable by using techniques similar to TCP, a lost
 packet will be sent again. However, an identical packet is not valid since the
-timestamp which indicates the time when the packet is sent is incorrect.
+timestamp which indicates the time when the packet was sent is incorrect.
 
 \subsection{Example}%
 \label{sub:example}
-Assume a clients sent a request to one server and got a response. The four
+Assume a client sent a request to one server and got a response. Suppose the four
 timestamps are:
 $$
 \textit{org} = T_2 = 3762785257.12414
@@ -220,14 +220,14 @@ We can calculate the offset:
 \begin{align*}
 \theta & = \frac{1}{2}\left[(T_3 - T_2) + (T_4 - T_5)\right]\\
        & = \frac{1}{2}[(3762785257.13128 - 3762785257.12414) \\
-       & + (3762785257.15132 - 3762785257.16213)]\\
+       & \quad + (3762785257.15132 - 3762785257.16213)]\\
        & = -0.001835
 \end{align*}
 and the delay:
 \begin{align*}
 \delta & = (T_5 - T_2) - (T_4 - T_3) \\
        & = (3762785257.16213 - 3762785257.12414) \\
-       & - (3762785257.15132 - 3762785257.13128) \\
+       & \quad - (3762785257.15132 - 3762785257.13128) \\
        & = 0.01795
 \end{align*}
 thus we have the offset is 1.835 ms and the delay is 17.95 ms.
@@ -354,11 +354,11 @@ large amount.
 
 \subsection{Example}%
 \label{sub:example}
-Assume for a peer, we have 8 samples in the shift register, the offsets, delays
-and dispersions are in Table~\ref{tab:clock_filter}:
+Assume that for a given peer, we have 8 samples in the shift register; the
+offsets, delays and dispersions are as shown in Table~\ref{tab:clock_filter},
 \begin{table}[htpb]
     \centering
-    \caption{8 samples in shift register}
+    \caption{Eight samples in shift register}
     \label{tab:clock_filter}
     \begin{tabular}{|c|c|c|c|}
         \hline
@@ -383,10 +383,10 @@ and dispersions are in Table~\ref{tab:clock_filter}:
         \hline
     \end{tabular}
 \end{table}
-where the units of offsets, delay and dispersion are millisecond.
+where the units of offset, delay and dispersion are milliseconds.
 Table~\ref{tab:clock_filter} shows the indices of of the samples after sorting
-them by their delay. In this case, the peer offset will be 34.04 ms and the
-peer delay will be 64.09 ms. The peer dispersion $\varepsilon$ is:
+them by their delay. In this example, the peer offset will be 34.04 ms and the
+peer delay will be 64.09~ms. The peer dispersion $\varepsilon$ is:
 $$ \varepsilon = \sum^{7}_{i=0} \frac{\varepsilon_i}{2^{(i+1)}} = 11.13
 \text{ ms} $$
 and the peer jitter is 

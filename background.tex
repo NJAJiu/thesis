@@ -91,6 +91,38 @@ large, abrupt change in the system time.
 In next chapter, we give an overview of the architecture of the network
 operated by NTP and the internal processes of a NTP daemon program.
 
+\section{NTP daemon and query program}%
+\label{sec:ntp_daemon_and_query_program}
+There is an NTP daemon program called \verb|ntpd| which is an implementation of
+NTP\null. The \verb|ntpd| daemon program synchronizes the system clock after it
+starts. The query program \verb|ntpq| allows user to get some information about
+the running status of the daemon program, includes server information,
+statistics and kernel status.
+
+Here is an example which shows the output of \verb|kern| command of \verb|ntpq|
+program. In this example, we can see that the estimated error of the system
+clock is 1.393~ms.
+\begin{verbatim}
+ntpq> kern
+associd=0 status=0638 leap_none, sync_ntp, 3 events, no_sys_peer,
+pll offset: -0.235878
+pll frequency: -44.3577
+maximum error: 728.128
+estimated error: 1.393
+kernel status: pll nano mode=fll
+pll time constant: 10
+precision: 0.001
+frequency tolerance: 500
+pps frequency: 0
+pps stability: 0
+pps jitter: 0
+calibration interval 0
+calibration cycles: 0
+jitter exceeded: 0
+stability exceeded: 0
+calibration errors: 0
+\end{verbatim}
+
 % \section{Concepts}%
 % \label{sec:concepts}
 

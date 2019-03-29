@@ -428,15 +428,17 @@ the sorted list of survivors becomes the system peer.
 Some system variables come from the system peer. The important ones
 include the stratum number, which is the stratum of the system peer plus one.
 The system root delay and root dispersion are calculated using
-Equation~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
+Equations~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
 
 \section{Example}%
 \label{sec:example}
+Table~\ref{tab:sur} shows the statistics of five survivors after applying the
+clustering algorithm. The statistics are obtained from a running NTP daemon by
+using \verb|peers| and \verb|mrv| commands of \verb|ntpq|. (The units in the
+table are milliseconds)
 
-Assume that after applying the clustering algorithm, there are five survivors. 
-Table~\ref{tab:sur} shows the statistics of them. (The units in the table are
-milliseconds)
-
+%Assume that after applying the clustering algorithm, there are five survivors. 
+%Table~\ref{tab:sur} shows their statistics. 
 \begin{table}[htpb]
     \centering
     \caption{Statistics of five survivors}
@@ -457,7 +459,7 @@ milliseconds)
 
 By applying Equation~\ref{eq:root_distance}, Equation~\ref{eq:merit_factor}
 and Equation~\ref{eq:selection_jitter},
-we have:
+we obtain the value shown in Table~\ref{tab:root_distance}:
 \begin{table}[!h]
     \centering
     \caption{Root distances and merit factors}
@@ -475,9 +477,10 @@ we have:
     \end{tabular}
 \end{table}
 
-Thus we select server 2 as the system peer. Then we apply
+As server 2 has the smallest merit factor, it is selected as the system peer.
+Then we apply
 Equation~\ref{eq:system_offset_selection_jitter}, Equation~\ref{eq:normalizer}
-and Equation~\ref{eq:system_jitter}, we have:
+and Equation~\ref{eq:system_jitter}, to obtain:
 \begin{align*}
     \text{System offset } \Theta & = -21.683\\ 
     \text{System peer jitter } \varphi_r &= 119.100\\

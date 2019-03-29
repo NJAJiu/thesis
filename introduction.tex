@@ -68,16 +68,21 @@ time to the same source. If the source is in a local device, such as a local
 computer, they do not
 have to be synchronized to any external devices. In some other cases, a device
 may need to be synchronized to a standard time. 
-Coordinated Universal Time (UTC) is one kind of standard time, it is similar 
-to Greenwich Mean Time (GMT) but the latter one is not a standard one. 
-In practice, UTC and GMT share the same current time, but the main difference
+Coordinated Universal Time (UTC) is one kind of standard time: it is similar 
+to Greenwich Mean Time (GMT) but the latter one is not a standard.
+``UTC is the time-scale maintained by the Bureau International des Poids et
+Mesures (BIPM), with assistance from the International Earth Rotation Service
+(IERS), which forms the basis of a coordinated dissemination of standard
+frequencies and time signals''~\cite{utc_def}.
+In practice, UTC and GMT approximately share the same current time, but the
+main difference
 between them is that GMT is a timezone while UTC is not~\cite{utc}. When we are
 talking about time in GMT\null, we are talking about the time in that time
-zone.  UTC is used more commonly, computer operating systems like Linux use UTC
-to represent their system clocks. When we are talking about the time in UTC, we
-are talking about the standard time. UTC is kept using atomic clocks, which can
-be considered to be very accurate. UTC is widely used for time synchronization
-purposes.
+zone.  UTC is used more commonly: many computer operating systems, such as
+those running Linux, store their system time in UTC\null. When we are talking
+about the time in UTC, we are talking about the standard time. UTC is kept
+using atomic clocks, which are considered to be very accurate. UTC is widely
+used for time synchronization purposes.
 
 An easy way of synchronizing a clock is to ask someone else for the time, and
 then adjust the system clock manually. We adjust the time of our
