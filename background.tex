@@ -93,15 +93,16 @@ operated by NTP and the internal processes of a NTP daemon program.
 
 \section{NTP daemon and query program}%
 \label{sec:ntp_daemon_and_query_program}
-There is an NTP daemon program called \verb|ntpd| which is an implementation of
-NTP\null. The \verb|ntpd| daemon program synchronizes the system clock after it
-starts. The query program \verb|ntpq| allows user to get some information about
-the running status of the daemon program, includes server information,
+There is an NTP daemon program, called \verb|ntpd|, which is an implementation of
+NTP\null. The \verb|ntpd| daemon program synchronizes the system clock. The
+query program \verb|ntpq| allows users to get some information about the running
+status of the daemon program, including server information,
 statistics and kernel status.
 
-Here is an example which shows the output of \verb|kern| command of \verb|ntpq|
-program. In this example, we can see that the estimated error of the system
-clock is 1.393~ms.
+Here is an example which shows the output of the \verb|kern| command of the
+\verb|ntpq| program. In this example, we can see that the estimated error of
+the system clock is 1.393~ms. The meaning of some of the other output lines
+will be touched on in later chapters.
 \begin{verbatim}
 ntpq> kern
 associd=0 status=0638 leap_none, sync_ntp, 3 events, no_sys_peer,

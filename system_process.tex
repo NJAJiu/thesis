@@ -432,10 +432,25 @@ Equations~\ref{eq:root_delay} and~\ref{eq:root_dispersion}.
 
 \section{Example}%
 \label{sec:example}
-Table~\ref{tab:sur} shows the statistics of five survivors after applying the
-clustering algorithm. The statistics are obtained from a running NTP daemon by
-using \verb|peers| and \verb|mrv| commands of \verb|ntpq|. (The units in the
-table are milliseconds)
+Here is an example which shows the output of the \verb|peers| command of the
+\verb|ntpq| program.
+\begin{small}
+\begin{verbatim}
+     remote           refid    st t when poll reach   delay  offset  jitter
+===========================================================================
++154.11.146.39   172.21.138.4   2 u  599 1024  357   77.585 -10.551 149.907
+*time.netspectru 216.239.35.4   2 u  715 1024  357   37.244 -16.900  10.845
++time1.chu.nrc.c 209.87.233.52  2 u  737 1024  377   55.049 -24.445 197.688
++207.34.49.172 ( 206.108.0.131  3 u  758 1024  377   67.729 -21.045 187.768
++pugot.canonical 193.79.237.14  2 u  806 1024  377  104.857 -36.358 180.567
+\end{verbatim}
+\end{small}
+
+The ``+'' notation indicates that the peer in that line is a survivor while the
+``*'' notation indicates that the peer in that line is the system peer.
+Table~\ref{tab:sur} shows the statistics of the five survivors.
+The statistics are obtained by using \verb|mrv| commands of the \verb|ntpq|
+program. (The units in the table are milliseconds.)
 
 %Assume that after applying the clustering algorithm, there are five survivors. 
 %Table~\ref{tab:sur} shows their statistics. 
